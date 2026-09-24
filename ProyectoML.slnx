@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="ProyectoML.Api/ProyectoML.Api.csproj" />
+    <Project Path="ProyectoML.Application/ProyectoML.Application.csproj" />
+    <Project Path="ProyectoML.Domain/ProyectoML.Domain.csproj" />
+    <Project Path="ProyectoML.Infrastructure/ProyectoML.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="ProyectoML/ProyectoML.csproj" />
+  </Folder>
+</Solution>

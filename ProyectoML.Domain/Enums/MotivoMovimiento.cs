@@ -7,6 +7,6 @@ namespace ProyectoML.Domain.Enums;
 public enum MotivoMovimiento
 {
     Ingreso,
-    Ventas,
+    Venta,
     Ajuste
 }

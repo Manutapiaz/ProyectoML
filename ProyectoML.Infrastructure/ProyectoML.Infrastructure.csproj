@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ProyectoML.Application\ProyectoML.Application.csproj" />
     <ProjectReference Include="..\ProyectoML.Domain\ProyectoML.Domain.csproj" />
   </ItemGroup>
 

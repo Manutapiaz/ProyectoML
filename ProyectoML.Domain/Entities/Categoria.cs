@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ProyectoML.Domain.Exceptions;
 
 namespace ProyectoML.Domain.Entities;
 
@@ -15,7 +13,7 @@ public class Categoria
     }
     public Categoria(string nombreCategoria)
     {
-        if (string.IsNullOrEmpty(nombreCategoria)) throw new ArgumentException("Categoria no puede venir vacia");
+        if (string.IsNullOrEmpty(nombreCategoria)) throw new DomainException("Categoria no puede venir vacia");
         this.Nombre = nombreCategoria;
     }
 

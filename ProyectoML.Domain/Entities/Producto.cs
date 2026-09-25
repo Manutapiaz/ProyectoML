@@ -1,4 +1,5 @@
 ﻿using ProyectoML.Domain.Enums;
+using ProyectoML.Domain.Exceptions;
 namespace ProyectoML.Domain.Entities;
 
 public class Producto
@@ -22,7 +23,7 @@ public class Producto
     }
     public Producto(string sku, string nombre, string descripcion, decimal precio, Categoria categoria)
     {
-        if (string.IsNullOrEmpty(sku)) throw new ArgumentException("SKU no puede ser vacio");
+        if (string.IsNullOrWhiteSpace(sku)) throw new DomainException("SKU no puede ser vacio");
 
         this.SKU = sku;
         this.Nombre = nombre;
@@ -40,10 +41,10 @@ public class Producto
 
     public void RegistrarMovimiento(int cantidad, MotivoMovimiento motivo, string referencia)
     {
-        if ((Stock + cantidad) < 0) throw new ArgumentException("Stock no puede ser menor a 0");
+        if ((Stock + cantidad) < 0) throw new DomainException("Stock no puede ser menor a 0");
 
-        if (motivo == MotivoMovimiento.Ingreso && cantidad <= 0) throw new ArgumentException("cantidad en motivo Ingreso debe ser mayor a 0");
-        if (motivo == MotivoMovimiento.Ventas && cantidad  >= 0) throw new ArgumentException("cantidad en motivo Ventas debe ser menor a 0");
+        if (motivo == MotivoMovimiento.Ingreso && cantidad <= 0) throw new DomainException("cantidad en motivo Ingreso debe ser mayor a 0");
+        if (motivo == MotivoMovimiento.Venta && cantidad  >= 0) throw new DomainException("cantidad en motivo Ventas debe ser menor a 0");
 
         this.Stock += cantidad;
         this.FechaActualizacion = DateTime.UtcNow;
@@ -55,7 +56,7 @@ public class Producto
     }
     public void CambiarPrecio(decimal precio)
     {
-        if (precio <= 0) throw new ArgumentException("Precio debe ser mayor a 0");
+        if (precio <= 0) throw new DomainException("Precio debe ser mayor a 0");
         this.Precio = precio;
         this.FechaActualizacion = DateTime.UtcNow;
     }

@@ -1,6 +1,86 @@
-@ProyectoML.Api_HostAddress = http://localhost:5027
+@url = http://localhost:5027
 
-GET {{ProyectoML.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{url}}/api/categorias
 
 ###
+
+POST {{url}}/api/categorias
+Content-Type: application/json
+
+{ "nombre": "Cables" }
+
+### Obtener por id
+GET {{url}}/api/categorias/8
+
+
+
+### Lisa productos
+GET {{url}}/api/productos
+
+### Crear Producto 1
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "PROD-001",
+  "nombre": "Teclado Mecánico RGB",
+  "descripcion": "Teclado mecánico con iluminación RGB y conexión USB",
+  "precio": 49990,
+  "categoriaId": 432323,
+  "stockInicial": 10
+}
+
+### Crear Producto 2
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "PROD-002",
+  "nombre": "Mouse Inalámbrico",
+  "descripcion": "Mouse inalámbrico ergonómico de 6 botones",
+  "precio": 24990,
+  "categoriaId": 1,
+  "stockInicial": -40
+}
+
+### Crear Producto 3
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "PROD-003",
+  "nombre": "Monitor 24 Pulgadas",
+  "descripcion": "Monitor Full HD de 24 pulgadas a 75Hz",
+  "precio": 129990,
+  "categoriaId": 2,
+  "stockInicial": -15
+}
+
+### Crear Producto 4
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "PROD-004",
+  "nombre": "Audífonos Bluetooth",
+  "descripcion": "Audífonos inalámbricos con micrófono integrado",
+  "precio": 39990,
+  "categoriaId": 3,
+  "stockInicial": -30
+}
+
+### Crear Producto 5
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "PROD-005",
+  "nombre": "Cable HDMI 2.1",
+  "descripcion": null,
+  "precio": 12990,
+  "categoriaId": 2,
+  "stockInicial": 50
+}
+
+### Obtener por id
+GET {{url}}/api/productos/12

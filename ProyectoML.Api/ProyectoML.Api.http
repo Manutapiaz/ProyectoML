@@ -84,3 +84,7 @@ Content-Type: application/json
 
 ### Obtener por id
 GET {{url}}/api/productos/12
+
+
+###
+GET {{url}}/api/ConfigTest/

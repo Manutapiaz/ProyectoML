@@ -88,3 +88,8 @@ GET {{url}}/api/productos/12
 
 ###
 GET {{url}}/api/ConfigTest/
+
+
+### login ml
+GET {{url}}/api/MercadoLibre/login
+

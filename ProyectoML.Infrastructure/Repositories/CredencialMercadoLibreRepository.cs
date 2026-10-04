@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using ProyectoML.Application.MercadoLibre;
 using ProyectoML.Domain.Entities;
 using ProyectoML.Infrastructure.Persistence;
@@ -15,18 +16,19 @@ public class CredencialMercadoLibreRepository : ICredencialMercadoLibreRepositor
         _context = context;
     }
 
-    public Task AddAsync(CredencialMercadoLibre credencialMercadoLibre)
-    {        
-        throw new NotImplementedException();
+    public async Task AddAsync(CredencialMercadoLibre credencialMercadoLibre)
+    {
+        _context.CredencialesMercadoLibre.Add(credencialMercadoLibre);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<bool> ExistsByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public Task SaveChangesAsync() => _context.SaveChangesAsync();
 
-    public Task<CredencialMercadoLibre> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<bool> ExistsByIdAsync(long id)
+          => _context.CredencialesMercadoLibre.AnyAsync(c => c.UserId == id);
+
+    public Task<CredencialMercadoLibre?> GetByUserIdAsync(long userId)
+        => _context.CredencialesMercadoLibre.FirstOrDefaultAsync(c => c.UserId == userId);
+
+
 }

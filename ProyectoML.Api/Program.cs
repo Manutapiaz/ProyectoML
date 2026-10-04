@@ -37,6 +37,10 @@ builder.Services.AddHttpClient<IMercadoLibreAuthClient, MercadoLibreAuthClient>(
 {
     client.BaseAddress = new Uri(builder.Configuration["MercadoLibre:ApiUrl"]!);
 });
+builder.Services.AddScoped<ICredencialMercadoLibreRepository, CredencialMercadoLibreRepository>();
+builder.Services.AddScoped<MercadoLibreAuthService>();
+
+
 var app = builder.Build();
 
 app.UseExceptionHandler();

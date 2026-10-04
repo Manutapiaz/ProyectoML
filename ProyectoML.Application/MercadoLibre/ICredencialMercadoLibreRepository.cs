@@ -7,9 +7,14 @@ namespace ProyectoML.Application.MercadoLibre
 {
     public interface ICredencialMercadoLibreRepository
     {
-        Task<CredencialMercadoLibre> GetByIdAsync(int id);
+   
         Task AddAsync(CredencialMercadoLibre credencialMercadoLibre);
-        Task<bool> ExistsByIdAsync(int id);
+
+        Task SaveChangesAsync();
+
+        Task<bool> ExistsByIdAsync(long id);
+        Task<CredencialMercadoLibre?> GetByUserIdAsync(long userId);
+
 
     }
 }

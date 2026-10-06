@@ -1,14 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client.NativeInterop;
 using ProyectoML.Application.MercadoLibre;
 using ProyectoML.Infrastructure.MercadoLibre;
-using System;
-using System.Collections.Generic;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 
-namespace ProyectoML.Infrastructure;
+namespace ProyectoML.Infrastructure.Client;
 
 public class MercadoLibreAuthClient : IMercadoLibreAuthClient
 {

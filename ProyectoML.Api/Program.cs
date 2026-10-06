@@ -3,7 +3,7 @@ using ProyectoML.Api.Handlers;
 using ProyectoML.Application.Categorias;
 using ProyectoML.Application.MercadoLibre;
 using ProyectoML.Application.Productos;
-using ProyectoML.Infrastructure;
+using ProyectoML.Infrastructure.Client;
 using ProyectoML.Infrastructure.MercadoLibre;
 using ProyectoML.Infrastructure.Persistence;
 using ProyectoML.Infrastructure.Repositories;
@@ -40,6 +40,11 @@ builder.Services.AddHttpClient<IMercadoLibreAuthClient, MercadoLibreAuthClient>(
 builder.Services.AddScoped<ICredencialMercadoLibreRepository, CredencialMercadoLibreRepository>();
 builder.Services.AddScoped<MercadoLibreAuthService>();
 
+builder.Services.AddHttpClient<IMercadoLibreApiClient, MercadoLibreApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["MercadoLibre:ApiUrl"]!);
+});
+builder.Services.AddScoped<MercadoLibreApiClientService>();
 
 var app = builder.Build();
 

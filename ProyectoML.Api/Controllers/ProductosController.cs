@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using ProyectoML.Application.Productos;
+using ProyectoML.Infrastructure.MercadoLibre;
 
 namespace ProyectoML.Api.Controllers;
 
@@ -8,6 +10,7 @@ namespace ProyectoML.Api.Controllers;
 public class ProductosController : ControllerBase
 {
     private readonly ProductoService _service;
+ 
 
     public ProductosController(ProductoService service)
     {
@@ -20,6 +23,8 @@ public class ProductosController : ControllerBase
         var productos = await _service.GetAllAsync();
         return Ok(productos);
     }
+
+   
 
     [HttpPost] 
     public async Task<ActionResult<ProductoResponse>> Create(CrearProductoRequest request)

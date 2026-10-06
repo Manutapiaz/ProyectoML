@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using ProyectoML.Api.Handlers;
-using ProyectoML.Application.Productos;
 using ProyectoML.Application.Categorias;
+using ProyectoML.Application.MercadoLibre;
+using ProyectoML.Application.Productos;
+using ProyectoML.Infrastructure.Client;
+using ProyectoML.Infrastructure.MercadoLibre;
 using ProyectoML.Infrastructure.Persistence;
 using ProyectoML.Infrastructure.Repositories;
 
@@ -26,6 +29,22 @@ builder.Services.AddScoped<ProductoService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.Configure<MercadoLibreOptions>(
+    builder.Configuration.GetSection("MercadoLibre"));
+
+builder.Services.AddHttpClient<IMercadoLibreAuthClient, MercadoLibreAuthClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["MercadoLibre:ApiUrl"]!);
+});
+builder.Services.AddScoped<ICredencialMercadoLibreRepository, CredencialMercadoLibreRepository>();
+builder.Services.AddScoped<MercadoLibreAuthService>();
+
+builder.Services.AddHttpClient<IMercadoLibreApiClient, MercadoLibreApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["MercadoLibre:ApiUrl"]!);
+});
+builder.Services.AddScoped<MercadoLibreApiClientService>();
 
 var app = builder.Build();
 

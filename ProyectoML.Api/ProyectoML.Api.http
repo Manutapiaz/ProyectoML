@@ -84,3 +84,14 @@ Content-Type: application/json
 
 ### Obtener por id
 GET {{url}}/api/productos/12
+
+
+###
+GET {{url}}/api/ConfigTest/
+
+
+### login ml
+GET {{url}}/api/MercadoLibre/login
+
+### user me
+GET {{url}}/api/MercadoLibre/cuenta/161249179

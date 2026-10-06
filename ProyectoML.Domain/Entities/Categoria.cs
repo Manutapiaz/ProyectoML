@@ -13,7 +13,7 @@ public class Categoria
     }
     public Categoria(string nombreCategoria)
     {
-        if (string.IsNullOrEmpty(nombreCategoria)) throw new DomainException("Categoria no puede venir vacia");
+        if (string.IsNullOrWhiteSpace(nombreCategoria)) throw new DomainException("Categoria no puede venir vacia");
         this.Nombre = nombreCategoria;
     }
 

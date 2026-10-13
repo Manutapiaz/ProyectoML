@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProyectoML.Api.Handlers;
 using ProyectoML.Application.Categorias;
 using ProyectoML.Application.MercadoLibre;
+using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Application.Productos;
 using ProyectoML.Infrastructure.Client;
 using ProyectoML.Infrastructure.MercadoLibre;
@@ -46,6 +47,9 @@ builder.Services.AddHttpClient<IMercadoLibreApiClient, MercadoLibreApiClient>(cl
 });
 builder.Services.AddScoped<MercadoLibreApiClientService>();
 
+
+builder.Services.AddScoped<IPublicacionMercadoLibreRepository, PublicacionMercadoLibreRepository>();
+builder.Services.AddScoped<PublicacionMercadoLibreService>();
 var app = builder.Build();
 
 app.UseExceptionHandler();

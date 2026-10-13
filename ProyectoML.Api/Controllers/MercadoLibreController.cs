@@ -39,4 +39,18 @@ public class MercadoLibreController : ControllerBase
         var cuenta = await _mercadoLibreApiClienteService.ObtenerCuentaAsync(userId);
         return Ok(cuenta);
     }
+
+    [HttpGet("sugerencias")]
+    public async Task<ActionResult<List<SugerenciaCategoria>>> SugerenciasCategoria(string nombreProducto)
+    {
+        var sugerencias = await _mercadoLibreApiClienteService.SugerirCategoriaAsync(nombreProducto);
+        return Ok(sugerencias);
+    }
+
+    [HttpGet("categorias/{categoryId}/atributos")]
+    public async Task<ActionResult<List<AtributoCategoria>>> AtributosCategoria(string categoryId, long userId)
+    {
+        var atributos = await _mercadoLibreApiClienteService.ObtenerAtributosCategoriaAsync(categoryId, userId);
+        return Ok(atributos);
+    }
 }

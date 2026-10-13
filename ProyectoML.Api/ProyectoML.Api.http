@@ -94,4 +94,97 @@ GET {{url}}/api/ConfigTest/
 GET {{url}}/api/MercadoLibre/login
 
 ### user me
-GET {{url}}/api/MercadoLibre/cuenta/161249179
+GET {{url}}/api/MercadoLibre/cuenta/3742351220
+
+
+
+### Buscar Categorias
+GET https://api.mercadolibre.com/sites/MLC/domain_discovery/search?q=set+vasos
+
+
+### Buscar Atributros de Categoria
+GET https://api.mercadolibre.com/categories/MLC413643/attributes
+
+### listing_types
+GET https://api.mercadolibre.com/sites/MLC/listing_types
+Authorization:
+Content-Type: application/json
+
+###
+GET https://api.mercadolibre.com/users/3742351220/available_listing_types?category_id=MLC457489
+Authorization: 
+Content-Type: application/json
+
+###
+POST https://api.mercadolibre.com/items
+Authorization: 
+Content-Type: application/json
+{
+
+  "family_name":  "Set 4 Vaso vidrio 270ml transparente 4 Piezas, 1 Un",
+  "category_id": "MLC457489",
+  "price": 5000,
+  "currency_id": "CLP",
+  "available_quantity": 15,
+  "buying_mode": "buy_it_now",
+  "listing_type_id": "gold_special",
+  "condition": "new",
+
+  "pictures": [
+    { "source": "https://URL-PUBLICA-DE-UNA-IMAGEN.jpg" }
+  ],
+  "attributes": [
+    { "id": "BRAND", "value_name": "Genérica" },
+    { "id": "MODEL", "value_name": "Vaso 270ml" },
+    { "id": "DRINKING_GLASS_PRODUCT_TYPE", "value_id": "6530859" },
+    { "id": "SALE_FORMAT", "value_id": "1359392" },
+    { "id": "UNITS_PER_PACK", "value_name": "4" },
+    { "id": "EMPTY_GTIN_REASON", "value_id": "17055159" },
+    { "id": "SELLER_SKU", "value_name": "TU-SKU" }
+  ]
+}
+
+### Sugerencia
+GET  http://localhost:5027/api/sugerencias?nombreProducto=vaso+vidrio&userId=3742351220
+
+###
+GET {{url}}/api/mercadolibre/sugerencias?nombreProducto=vaso+pepsi
+
+### Prueba de publicacion  ML 
+
+### 1. Crear el producto 
+POST {{url}}/api/productos
+Content-Type: application/json
+
+{
+  "sku": "COPA-VINO-4",
+  "nombre": "Set 4 Copas De Vino Vidrio Transparente 350ml",
+  "descripcion": "Set de 4 copas de vino de vidrio transparente",
+  "precio": 9990,
+  "categoriaId": 1,
+  "stockInicial": 15
+}
+
+### 2. Atributos 
+GET {{url}}/api/mercadolibre/categorias/MLC457489/atributos?userId=3742351220
+
+### 3. Publicar en ML 
+POST {{url}}/api/productos/5/publicaciones
+Content-Type: application/json
+
+{
+  "userId": 3742351220,
+  "categoryId": "MLC457489",
+  "pictures": [ "https://images.unsplash.com/photo-1514651029128-173d2e6ea851?w=1200&fm=jpg" ],
+  "atributos": [
+    { "id": "BRAND", "valueName": "Genérica" },
+    { "id": "MODEL", "valueName": "Copa vino 350ml" },
+    { "id": "DRINKING_GLASS_PRODUCT_TYPE", "valueId": "6530860" },
+    { "id": "SALE_FORMAT", "valueId": "1359392" },
+    { "id": "UNITS_PER_PACK", "valueName": "4" },
+    { "id": "EMPTY_GTIN_REASON", "valueId": "17055159" }
+  ]
+}
+
+### 4. Revisar lo que quedo guardado
+GET {{url}}/api/productos/{{crearCopas.response.body.$.id}}

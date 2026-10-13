@@ -9,4 +9,5 @@ public interface IMercadoLibreAuthClient
     string GetAuthorizationUrl();
     Task<TokenResult> GetAccessTokenAsync(string code);
     Task<TokenResult> RefreshAccessTokenAsync(string refreshToken);
+
 }

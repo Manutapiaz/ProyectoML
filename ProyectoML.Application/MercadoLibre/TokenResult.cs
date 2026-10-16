@@ -12,5 +12,3 @@ public record AtributoCategoria(
 
 public record ValorAtributo(string Id, string Name);
 
-
-

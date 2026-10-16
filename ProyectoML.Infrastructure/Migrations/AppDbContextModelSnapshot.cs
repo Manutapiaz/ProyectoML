@@ -30,6 +30,10 @@ namespace ProyectoML.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("IdCategoriaMLC")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -148,6 +152,32 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.ToTable("Productos", (string)null);
                 });
 
+            modelBuilder.Entity("ProyectoML.Domain.Entities.ProductoImagen", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("ProductoImagenes", (string)null);
+                });
+
             modelBuilder.Entity("ProyectoML.Domain.Entities.PublicacionMercadoLibre", b =>
                 {
                     b.Property<int>("Id")
@@ -214,6 +244,17 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.Navigation("Categoria");
                 });
 
+            modelBuilder.Entity("ProyectoML.Domain.Entities.ProductoImagen", b =>
+                {
+                    b.HasOne("ProyectoML.Domain.Entities.Producto", "Producto")
+                        .WithMany("Imagenes")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+                });
+
             modelBuilder.Entity("ProyectoML.Domain.Entities.PublicacionMercadoLibre", b =>
                 {
                     b.HasOne("ProyectoML.Domain.Entities.Producto", "Producto")
@@ -233,6 +274,8 @@ namespace ProyectoML.Infrastructure.Migrations
 
             modelBuilder.Entity("ProyectoML.Domain.Entities.Producto", b =>
                 {
+                    b.Navigation("Imagenes");
+
                     b.Navigation("Movimientos");
                 });
 #pragma warning restore 612, 618

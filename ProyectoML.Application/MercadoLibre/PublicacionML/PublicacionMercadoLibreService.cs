@@ -29,7 +29,7 @@ public class PublicacionMercadoLibreService
 
     public async Task<PublicacionMercadoLibreDto> PublicarAsync(int productoId, PublicarProductoRequest request)
     {
-        // 1. Validaciones contra BD
+
         var producto = await _productoRepository.GetByIdAsync(productoId)
             ?? throw new NotFoundException($"El producto con Id {productoId} no fue encontrado.");
 
@@ -37,38 +37,35 @@ public class PublicacionMercadoLibreService
         {
             throw new ConflictException($"El producto con Id {productoId} ya está publicado en la cuenta {request.UserId}.");
         }
-
-        // 2. Reglas de ML que Producto no garantiza
-        if (string.IsNullOrWhiteSpace(request.CategoryId)) throw new DomainException("La categoría de Mercado Libre es obligatoria.");
+            
         if (producto.Stock <= 0) throw new DomainException("No se puede publicar un producto sin stock.");
-        if (producto.Precio != decimal.Truncate(producto.Precio)) throw new DomainException("El precio en CLP no puede tener decimales.");
+        if (producto.Precio != decimal.Truncate(producto.Precio)) throw new DomainException("El precio en CLP no puede tener decimales.");       
+        if(string.IsNullOrEmpty(producto.Categoria.IdCategoriaMLC)) throw new DomainException($"La categoría {producto.Categoria.Nombre} no tiene un ID de categoría en Mercado Libre asignado.");
+        if (producto.Imagenes.Count < 1) throw new DomainException($"El producto debe tener al menos 1 Imagen registrada");
 
-        // 3. Token (lanza NotFoundException si la cuenta no está vinculada)
+    
         var token = await _authService.ObtenerAccessTokenAsync(request.UserId);
-
-        // 4. Atributos: se validan contra la categoría y el SKU lo ponemos nosotros
+      
         var atributos = (request.Atributos ?? [])
             .Where(a => !string.Equals(a.Id, AtributoSku, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        var atributosCategoria = await _mercadoLibreApiClient.ObtenerAtributosCategoriaAsync(request.CategoryId, token);
+        var atributosCategoria = await _mercadoLibreApiClient.ObtenerAtributosCategoriaAsync(producto.Categoria.IdCategoriaMLC, token);
         ValidarAtributos(atributos, atributosCategoria);
 
         atributos.Add(new AtributoPublicacionRequest(AtributoSku, null, producto.SKU));
 
-        // 5. Publicar en ML
         var item = new ItemMercadoLibre(
             producto.Nombre,
-            request.CategoryId,
+            producto.Categoria.IdCategoriaMLC,
             (int)producto.Precio,
             producto.Stock,
             request.ListingTypeId,
-            request.Pictures ?? [],
+            producto.Imagenes.Select(n => n.Url).ToList() ?? [],
             atributos);
 
         var publicado = await _mercadoLibreApiClient.PublicarItemAsync(item, token);
 
-        // 6. Guardar lo que respondió ML
         var publicacion = new PublicacionMercadoLibre(
             productoId,
             publicado.Id,
@@ -82,6 +79,15 @@ public class PublicacionMercadoLibreService
         return ToResponse(publicacion);
     }
 
+    public async Task<PublicacionMercadoLibreDto> SincronizarAsync(string externalId)
+    {
+        var publicacion = await _publicacionRepository.GetByExternalIdAsync(externalId) ?? throw new NotFoundException("No existe la publicacion ingresada");
+        var token = await _authService.ObtenerAccessTokenAsync(publicacion.UserId);
+        var publicacionUpdate = await _mercadoLibreApiClient.BuscarPublicacionAsync(publicacion.ExternalId, token);
+        publicacion.CambiarEstado(publicacionUpdate.Estado);
+        await _publicacionRepository.UpdateAsync(publicacion);
+        return ToResponse(publicacion);
+    }
 
     public async Task<PublicacionMercadoLibreDto> GetPublicacionByIdAsync(string externalId)
     {
@@ -109,7 +115,6 @@ public class PublicacionMercadoLibreService
             if (string.IsNullOrWhiteSpace(atributo.ValueId) && string.IsNullOrWhiteSpace(atributo.ValueName))
                 throw new DomainException($"El atributo {atributo.Id} debe tener valueId o valueName.");
 
-            // Si viene valueId, tiene que ser uno de los valores que ML ofrece para ese atributo
             var definicion = atributosCategoria.FirstOrDefault(a => a.Id.Equals(atributo.Id, StringComparison.OrdinalIgnoreCase));
             if (definicion is not null
                 && !string.IsNullOrWhiteSpace(atributo.ValueId)

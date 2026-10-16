@@ -8,4 +8,5 @@ public interface IProductoRepository
     Task<Producto?> GetByIdAsync(int id);
     Task<bool> ExistsBySKUAsync(string sku);
     Task AddAsync(Producto producto);
+    Task UpdateAsync(Producto producto);
 }

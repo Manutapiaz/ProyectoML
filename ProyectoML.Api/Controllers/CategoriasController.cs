@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProyectoML.Application.Categorias;
+using ProyectoML.Application.MercadoLibre.PublicacionML;
 
 namespace ProyectoML.Api.Controllers;
 
@@ -39,5 +40,14 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
 
     }
+
+
+    [HttpPut("{id:int}/categoria-ml")]
+    public async Task<ActionResult<CategoriaResponse>> Update(int id, string idCategoriaMLC)
+    {
+        var categoria = await _service.UpdateAsync(id, idCategoriaMLC);
+        return Ok(categoria);
+    }
+
 
 }

@@ -46,4 +46,32 @@ public class ProductosController : ControllerBase
         var publicacion = await _publicacionService.PublicarAsync(id, request);
         return StatusCode(StatusCodes.Status201Created, publicacion);
     }
+
+    [HttpPost("/publicaciones/{externalId}/sincronizar")]
+    public async Task<ActionResult<PublicacionMercadoLibreDto>> SincronizarAsync(string externalId)
+    {
+        var publicacion = await _publicacionService.SincronizarAsync(externalId);
+        return Ok(publicacion);
+    }
+
+    [HttpGet("{id:int}/imagenes")]
+    public async Task<ActionResult<List<ProductoImagenResponse>>> GetImagenes(int id)
+    {
+        var imagenes = await _service.GetImagenesAsync(id);
+        return Ok(imagenes);
+    }
+
+    [HttpPost("{id:int}/imagenes")]
+    public async Task<ActionResult<ProductoImagenResponse>> AddImagen(int id, AgregarImagenRequest request)
+    {
+        var imagen = await _service.AgregarImagenAsync(id, request);
+        return StatusCode(StatusCodes.Status201Created, imagen);
+    }
+
+    [HttpDelete("{id:int}/imagenes/{imagenId:int}")]
+    public async Task<IActionResult> DeleteImagen(int id, int imagenId)
+    {
+        await _service.QuitarImagenAsync(id, imagenId);
+        return NoContent();
+    }
 }

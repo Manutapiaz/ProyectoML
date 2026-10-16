@@ -28,7 +28,15 @@ public class ProductoConfiguration : IEntityTypeConfiguration<Producto>
                .HasForeignKey(m => m.ProductoId)
                .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasMany(p => p.Imagenes)
+               .WithOne(i => i.Producto)
+               .HasForeignKey(i => i.ProductoId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         builder.Navigation(p => p.Movimientos)
                .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Navigation(p => p.Imagenes)
+           .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

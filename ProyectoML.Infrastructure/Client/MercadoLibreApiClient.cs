@@ -102,6 +102,17 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
     }
 
+    public async Task<ItemPublicado> BuscarPublicacionAsync(string idProductoMLC, string token)
+    {
+   
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/items/{idProductoMLC}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var response = await _httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            throw await CrearExcepcionAsync(response);
+        var ml = await response.Content.ReadFromJsonAsync<MlItemResponse>(JsonOptions);
+        return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
+    }
     private static EstadoPublicacion MapearEstado(string status) => status switch
     {
         "active" => EstadoPublicacion.Activo,

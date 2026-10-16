@@ -22,6 +22,9 @@ public class PublicacionMercadoLibreRepository : IPublicacionMercadoLibreReposit
         await _context.SaveChangesAsync();
 
     }
+    public Task UpdateAsync(PublicacionMercadoLibre publicacion)
+       => _context.SaveChangesAsync();
+
 
     public Task<bool> ExistsByExternalId(string externalId)
     {
@@ -37,6 +40,11 @@ public class PublicacionMercadoLibreRepository : IPublicacionMercadoLibreReposit
     {
         return _context.PublicacionesMercadoLibre.FirstOrDefaultAsync(p => p.ExternalId == externalId);
     }
+    public Task<PublicacionMercadoLibre?> GetByIdProductoAsync(int idProducto)
+    {
+        return _context.PublicacionesMercadoLibre.FirstOrDefaultAsync(p => p.ProductoId == idProducto);
+    }
+
 
     public Task<bool> ExistsAsync(int productoId, long userId)
     {

@@ -9,6 +9,6 @@ namespace ProyectoML.Domain.Enums
         Activo,
         Pausada,
         Cerrada,
-
+        EnRevision
     }
 }

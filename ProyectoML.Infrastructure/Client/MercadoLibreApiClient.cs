@@ -34,7 +34,6 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
 
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        //var json = await response.Content.ReadAsStringAsync();
         var ml = await response.Content.ReadFromJsonAsync<MlUserResponse>(JsonOptions);
         return new DataUserDto(ml!.Id, ml.Nickname, ml.SiteId, ml.RegistrationDate);
 
@@ -43,7 +42,6 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
     public async Task<List<SugerenciaCategoria>> SugerirCategoriaAsync(string nombreProducto)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/sites/MLC/domain_discovery/search?q={Uri.EscapeDataString(nombreProducto)}");
-        //request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
@@ -104,7 +102,7 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
 
     public async Task<ItemPublicado> BuscarPublicacionAsync(string idProductoMLC, string token)
     {
-   
+
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/items/{idProductoMLC}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await _httpClient.SendAsync(request);
@@ -117,10 +115,10 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
     {
         "active" => EstadoPublicacion.Activo,
         "closed" => EstadoPublicacion.Cerrada,
-        _ => EstadoPublicacion.Pausada
+        "paused" => EstadoPublicacion.Pausada,
+        _ => EstadoPublicacion.EnRevision
     };
 
-    // EnsureSuccessStatusCode bota el body, y ahí es donde ML explica qué atributo falta o está mal
     private static async Task<MercadoLibreException> CrearExcepcionAsync(HttpResponseMessage response)
     {
         var body = await response.Content.ReadAsStringAsync();
@@ -139,7 +137,6 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         }
         catch (JsonException)
         {
-            // el body no vino con el formato esperado: se devuelve tal cual
         }
 
         return new MercadoLibreException(detalle, (int)response.StatusCode);

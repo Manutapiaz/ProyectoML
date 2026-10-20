@@ -19,7 +19,6 @@ public class MercadoLibreController : ControllerBase
         _mercadoLibreApiClienteService = mercadoLibreApiClienteService;
     }
 
-    // en el controller
     [HttpGet("login")]
     public IActionResult Login() => Redirect(_mercadoLibreAuthClient.ObtenerUrlLogin());
 

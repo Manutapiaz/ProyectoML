@@ -11,7 +11,6 @@ namespace ProyectoML.Infrastructure.Persistence.Configurations
             builder.ToTable("PublicacionesMercadoLibre");
             builder.HasKey(p => p.Id);
 
-            // Relaciones
             builder.HasOne(p => p.Producto)
                 .WithMany()
                 .HasForeignKey(p => p.ProductoId)
@@ -22,7 +21,6 @@ namespace ProyectoML.Infrastructure.Persistence.Configurations
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Propiedades
             builder.Property(p => p.ExternalId)
                 .HasMaxLength(30)
                 .IsRequired();
@@ -34,7 +32,6 @@ namespace ProyectoML.Infrastructure.Persistence.Configurations
             builder.Property(p => p.Permalink)
                 .HasMaxLength(500);
 
-            // Índices
             builder.HasIndex(p => p.ExternalId).IsUnique();
             builder.HasIndex(p => new { p.ProductoId, p.UserId }).IsUnique();
         }

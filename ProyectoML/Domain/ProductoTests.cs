@@ -10,13 +10,10 @@ public class ProductoTests
     [Fact]
     public void RegistrarMovimiento_IngresoPositivo_AumentaStock()
     {
-        // Arrange
         var producto = CrearProducto();
 
-        // Act
         producto.RegistrarMovimiento(10, MotivoMovimiento.Ingreso, "Test");
 
-        // Assert
         Assert.Equal(10, producto.Stock);
         Assert.Single(producto.Movimientos);
     }

@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Application.Productos;
-using ProyectoML.Infrastructure.MercadoLibre;
+
 
 namespace ProyectoML.Api.Controllers;
 
@@ -11,12 +10,12 @@ namespace ProyectoML.Api.Controllers;
 public class ProductosController : ControllerBase
 {
     private readonly ProductoService _service;
-    private readonly PublicacionMercadoLibreService _publicacionService;
 
-    public ProductosController(ProductoService service, PublicacionMercadoLibreService publicacionService)
+    private readonly PublicacionMercadoLibreService _publicacionService;
+    public ProductosController(ProductoService service, PublicacionMercadoLibreService publicacionMercadoLibreService)
     {
         _service = service;
-        _publicacionService = publicacionService;
+        _publicacionService = publicacionMercadoLibreService;
     }
 
     [HttpGet]
@@ -26,7 +25,7 @@ public class ProductosController : ControllerBase
         return Ok(productos);
     }
 
-    [HttpPost] 
+    [HttpPost]
     public async Task<ActionResult<ProductoResponse>> Create(CrearProductoRequest request)
     {
         var producto = await _service.CreateAsync(request);
@@ -40,19 +39,6 @@ public class ProductosController : ControllerBase
         return Ok(producto);
     }
 
-    [HttpPost("{id:int}/publicaciones")]
-    public async Task<ActionResult<PublicacionMercadoLibreDto>> Publicar(int id, PublicarProductoRequest request)
-    {
-        var publicacion = await _publicacionService.PublicarAsync(id, request);
-        return StatusCode(StatusCodes.Status201Created, publicacion);
-    }
-
-    [HttpPost("/publicaciones/{externalId}/sincronizar")]
-    public async Task<ActionResult<PublicacionMercadoLibreDto>> SincronizarAsync(string externalId)
-    {
-        var publicacion = await _publicacionService.SincronizarAsync(externalId);
-        return Ok(publicacion);
-    }
 
     [HttpGet("{id:int}/imagenes")]
     public async Task<ActionResult<List<ProductoImagenResponse>>> GetImagenes(int id)
@@ -74,4 +60,12 @@ public class ProductosController : ControllerBase
         await _service.QuitarImagenAsync(id, imagenId);
         return NoContent();
     }
+
+    [HttpPost("{id:int}/publicaciones")]
+    public async Task<ActionResult<PublicacionMercadoLibreDto>> Publicar(int id, PublicarProductoRequest request)
+    {
+        var publicacion = await _publicacionService.PublicarAsync(id, request);
+        return StatusCode(StatusCodes.Status201Created, publicacion);
+    }
+
 }

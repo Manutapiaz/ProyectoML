@@ -99,9 +99,9 @@ public class PublicacionMercadoLibreService
         return ToResponse(publicacion);
     }
 
-    public async Task<List<PublicacionMercadoLibreDto>> GetAllAsync()
+    public async Task<List<PublicacionMercadoLibreDto>> GetAllAsync(long userId)
     {
-        var publicaciones = await _publicacionRepository.GetAllAsync();
+        var publicaciones = await _publicacionRepository.GetAllAsync(userId);
         return publicaciones.Select(p => ToResponse(p)).ToList();
     }
 

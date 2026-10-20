@@ -31,9 +31,9 @@ public class PublicacionMercadoLibreRepository : IPublicacionMercadoLibreReposit
         return _context.PublicacionesMercadoLibre.AnyAsync(p => p.ExternalId == externalId);
     }
 
-    public Task<List<PublicacionMercadoLibre>> GetAllAsync()
+    public Task<List<PublicacionMercadoLibre>> GetAllAsync(long userId)
     {
-        return _context.PublicacionesMercadoLibre.ToListAsync();
+        return _context.PublicacionesMercadoLibre.Where(p => p.UserId == userId).ToListAsync();
     }
 
     public Task<PublicacionMercadoLibre?> GetByExternalIdAsync(string externalId)

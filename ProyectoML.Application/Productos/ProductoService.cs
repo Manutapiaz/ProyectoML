@@ -45,20 +45,54 @@ public class ProductoService
         var producto = new Producto(
             request.SKU,
             request.Nombre,
-            request.Descripcion??string.Empty,
+            request.Descripcion ?? string.Empty,
             request.Precio,
             categoria
         );
 
 
+
         if (request.StockInicial != 0)
             producto.RegistrarMovimiento(request.StockInicial, MotivoMovimiento.Ingreso, "Stock inicial");
 
+
+        request.Imagenes?.ForEach(url => producto.AgregarImagen(url));
+
+
         await _productoRepository.AddAsync(producto);
-     
+
         return ToResponse(producto);
-        
+
     }
+
+    public async Task<List<ProductoImagenResponse>> GetImagenesAsync(int productoId)
+    {
+        var producto = await ObtenerProductoAsync(productoId);
+        return producto.Imagenes.Select(ToImagenResponse).ToList();
+    }
+
+    public async Task<ProductoImagenResponse> AgregarImagenAsync(int productoId, AgregarImagenRequest request)
+    {
+        var producto = await ObtenerProductoAsync(productoId);
+
+        producto.AgregarImagen(request.Url);
+        await _productoRepository.UpdateAsync(producto);
+        return ToImagenResponse(producto.Imagenes.Last());
+    }
+
+    public async Task QuitarImagenAsync(int productoId, int imagenId)
+    {
+        var producto = await ObtenerProductoAsync(productoId);
+
+        producto.QuitarImagen(imagenId);
+        await _productoRepository.UpdateAsync(producto);
+    }
+
+    private async Task<Producto> ObtenerProductoAsync(int id)
+        => await _productoRepository.GetByIdAsync(id)
+            ?? throw new NotFoundException($"Producto con id {id} no encontrado");
+
+    private static ProductoImagenResponse ToImagenResponse(ProductoImagen i) => new(i.Id, i.Url, i.FechaCreacion);
 
     private static ProductoResponse ToResponse(Producto p) => new(
             p.Id,
@@ -71,6 +105,7 @@ public class ProductoService
             p.Categoria.Nombre,
             p.Activo,
             p.FechaCreacion,
-            p.FechaActualizacion
+            p.FechaActualizacion,
+            p.Imagenes.Select(ToImagenResponse).ToList()
         );
 }

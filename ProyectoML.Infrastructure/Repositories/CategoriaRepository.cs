@@ -17,6 +17,9 @@ public class CategoriaRepository : ICategoriaRepository
         await _context.SaveChangesAsync();
     }
 
+    public Task UpdateAsync(Categoria categoria)
+        => _context.SaveChangesAsync();
+
     public Task<Categoria?> GetByIdAsync(int id)
         => _context.Categorias.FirstOrDefaultAsync(c => c.Id == id);
 

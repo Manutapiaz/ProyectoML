@@ -10,13 +10,10 @@ public class ProductoTests
     [Fact]
     public void RegistrarMovimiento_IngresoPositivo_AumentaStock()
     {
-        // Arrange
         var producto = CrearProducto();
 
-        // Act
         producto.RegistrarMovimiento(10, MotivoMovimiento.Ingreso, "Test");
 
-        // Assert
         Assert.Equal(10, producto.Stock);
         Assert.Single(producto.Movimientos);
     }
@@ -39,7 +36,7 @@ public class ProductoTests
     public void Constructor_PrecioInvalido_LanzaDomainException(decimal precio)
     {
         Assert.Throws<DomainException>(() =>
-            new Producto("SKU-1", "Nombre", "Desc", precio, new Categoria("Cat")));
+            new Producto("SKU-1", "Nombre", "Desc", precio, new Categoria("Cat", null)));
     }
 
     [Fact]
@@ -102,7 +99,7 @@ public class ProductoTests
     public void Constructor_SkuVacio_LanzaDomainException(string sku)
     {
         Assert.Throws<DomainException>(() =>
-            new Producto(sku, "Nombre", "Desc", 1000m, new Categoria("Cat")));
+            new Producto(sku, "Nombre", "Desc", 1000m, new Categoria("Cat", null)));
     }
 
     [Fact]
@@ -124,6 +121,55 @@ public class ProductoTests
         Assert.Equal(2000m, producto.Precio);
     }
 
+    [Theory] 
+    [InlineData("ftp://ejemplo.cl/foto.jpg")]
+    [InlineData("file:///C:/fotos/foto.jpg")]
+    [InlineData("invalid-url")] 
+    public void AgregarImagen_UrlInvalida_LanzaDomainException(string url)
+    {
+        var producto = CrearProducto();
+        Assert.Throws<DomainException>(() =>
+            producto.AgregarImagen(url));
+
+    }
+
+    [Fact]
+    public void AgregarImagen_UrlValida_AgregaImagen()
+    {
+        var producto = CrearProducto();
+        string url = "http://example.com/image.jpg";
+        producto.AgregarImagen(url);
+        Assert.Single(producto.Imagenes);
+        Assert.Equal(url, producto.Imagenes.Single().Url);
+    }
+
+    [Fact]
+    public void AgregarImagen_MaximoAlcanzado_LanzaDomainException()
+    {
+        var producto = CrearProducto();
+        for (int i = 0; i < Producto.MaxImagenes; i++)
+        {
+            producto.AgregarImagen($"http://example.com/image{i}.jpg");
+        }
+        Assert.Throws<DomainException>(() =>
+            producto.AgregarImagen("http://example.com/image14.jpg"));
+        Assert.Equal(Producto.MaxImagenes, producto.Imagenes.Count);
+    }
+
+
+    [Fact]
+    public void AgregarImagen_UrlRepetida_LanzaDomainException()
+    {
+        var producto = CrearProducto();
+        producto.AgregarImagen("http://example.com/image.jpg");
+        Assert.Throws<DomainException>(() =>
+            producto.AgregarImagen("http://example.com/image.jpg"));
+    }
+
+
+
     public static Producto CrearProducto()
-        => new("SKU-1", "Producto test", "Descripción", 1000m, new Categoria("Categoría test"));
+        => new("SKU-1", "Producto test", "Descripción", 1000m, new Categoria("Categoría test", null));
+
+
 }

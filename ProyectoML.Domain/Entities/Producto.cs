@@ -60,5 +60,38 @@ public class Producto
         this.Precio = precio;
         this.FechaActualizacion = DateTime.UtcNow;
     }
+
+    private readonly List<ProductoImagen> _imagenes = new();
+    public IReadOnlyCollection<ProductoImagen> Imagenes => _imagenes;
+    public const int MaxImagenes = 10;
+    public void AgregarImagen(string url)
+    {
+        if (_imagenes.Count >= MaxImagenes)
+        {
+            throw new DomainException($"No se pueden agregar mas de {MaxImagenes} imagenes");
+        }
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? result)
+            || (result.Scheme != Uri.UriSchemeHttp && result.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new DomainException("La url de la imagen no es valida");
+        }
+
+        if (_imagenes.Any(n => n.Url == url))
+        {
+            throw new DomainException("La imagen ya existe");
+        }
+
+       
+        _imagenes.Add(new ProductoImagen(this, url));
+        this.FechaActualizacion = DateTime.UtcNow;
+    }
+
+    public void QuitarImagen(int imagenId)
+    {
+        var imagen = _imagenes.FirstOrDefault(i => i.Id == imagenId)
+            ?? throw new DomainException($"El producto no tiene una imagen con id {imagenId}");
+        _imagenes.Remove(imagen);
+        this.FechaActualizacion = DateTime.UtcNow;
+    }
 }
 

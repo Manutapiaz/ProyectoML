@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProyectoML.Application.Categorias;
 using ProyectoML.Application.MercadoLibre.PublicacionML;
 

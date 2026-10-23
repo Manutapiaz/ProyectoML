@@ -19,8 +19,8 @@ public class MercadoLibreAuthClient : IMercadoLibreAuthClient
         _options = options;
     }
 
-    public string GetAuthorizationUrl()
-        => $"{_options.Value.AuthUrl}?response_type=code&client_id={_options.Value.ClientId}&redirect_uri={Uri.EscapeDataString(_options.Value.RedirectUri)}";
+    public string GetAuthorizationUrl(string state)
+        => $"{_options.Value.AuthUrl}?response_type=code&client_id={_options.Value.ClientId}&redirect_uri={Uri.EscapeDataString(_options.Value.RedirectUri)}&state={Uri.EscapeDataString(state)}";
 
     public async Task<TokenResult> GetAccessTokenAsync(string code)
     {

@@ -18,5 +18,14 @@ public class CredencialMercadoLibreConfiguration : IEntityTypeConfiguration<Cred
         builder.Property(c => c.ExpiresAt).IsRequired();
         builder.Property(c => c.RefreshToken).IsRequired();
 
+        builder.HasOne(c => c.Usuario)
+            .WithMany(u => u.CredencialesMercadoLibre)
+            .HasForeignKey(c => c.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Usuario)
+          .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+
     }
 }

@@ -63,7 +63,12 @@ namespace ProyectoML.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("UserId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("CredencialesMercadoLibre", (string)null);
                 });
@@ -222,6 +227,51 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.ToTable("PublicacionesMercadoLibre", (string)null);
                 });
 
+            modelBuilder.Entity("ProyectoML.Domain.Entities.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NombreUsuario")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Usuarios", (string)null);
+                });
+
+            modelBuilder.Entity("ProyectoML.Domain.Entities.CredencialMercadoLibre", b =>
+                {
+                    b.HasOne("ProyectoML.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("CredencialesMercadoLibre")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("ProyectoML.Domain.Entities.MovimientoStock", b =>
                 {
                     b.HasOne("ProyectoML.Domain.Entities.Producto", "Producto")
@@ -277,6 +327,11 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.Navigation("Imagenes");
 
                     b.Navigation("Movimientos");
+                });
+
+            modelBuilder.Entity("ProyectoML.Domain.Entities.Usuario", b =>
+                {
+                    b.Navigation("CredencialesMercadoLibre");
                 });
 #pragma warning restore 612, 618
         }

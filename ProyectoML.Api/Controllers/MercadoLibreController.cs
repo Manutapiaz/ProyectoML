@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProyectoML.Application.MercadoLibre;
+using System.Security.Claims;
 
 namespace ProyectoML.Api.Controllers;
 
@@ -20,16 +22,22 @@ public class MercadoLibreController : ControllerBase
     }
 
     [HttpGet("login")]
-    public IActionResult Login() => Redirect(_mercadoLibreAuthClient.ObtenerUrlLogin());
+    public IActionResult Login()
+    {
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        string url = _mercadoLibreAuthClient.ObtenerUrlLogin(usuarioId);
+        return Ok(new { url });
+    }
 
+    [AllowAnonymous]
     [HttpGet("callback")]
-    public async Task<IActionResult> Callback(string code)
+    public async Task<IActionResult> Callback(string code, string state)
     {
         if (string.IsNullOrWhiteSpace(code))
         {
             return BadRequest("El código de autorización es requerido.");
         }
-        return Ok(await _mercadoLibreAuthClient.ProcesarCallbackAsync(code));
+        return Ok(await _mercadoLibreAuthClient.ProcesarCallbackAsync(code, state));
     }
 
     [HttpGet("cuenta/{userId:long}")]

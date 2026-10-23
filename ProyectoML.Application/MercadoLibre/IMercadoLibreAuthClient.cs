@@ -6,7 +6,7 @@ namespace ProyectoML.Application.MercadoLibre;
 
 public interface IMercadoLibreAuthClient
 {
-    string GetAuthorizationUrl();
+    string GetAuthorizationUrl(string state);
     Task<TokenResult> GetAccessTokenAsync(string code);
     Task<TokenResult> RefreshAccessTokenAsync(string refreshToken);
 

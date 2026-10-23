@@ -1,4 +1,5 @@
-﻿using ProyectoML.Application.Exceptions;
+﻿using ProyectoML.Application.Auth;
+using ProyectoML.Application.Exceptions;
 using ProyectoML.Domain.Entities;
 
 namespace ProyectoML.Application.MercadoLibre;
@@ -8,26 +9,39 @@ public class MercadoLibreAuthService
     private readonly ICredencialMercadoLibreRepository _repository;
     private readonly IMercadoLibreAuthClient _authClient;
 
-    public MercadoLibreAuthService(ICredencialMercadoLibreRepository repository, IMercadoLibreAuthClient authClient)
+    private readonly IAuthStateProtector _authStateProtector;
+
+    public MercadoLibreAuthService(
+        ICredencialMercadoLibreRepository repository,
+        IMercadoLibreAuthClient authClient,
+         IAuthStateProtector authStateProtector)
     {
         _repository = repository;
         _authClient = authClient;
+        _authStateProtector = authStateProtector;
     }
 
-    public string ObtenerUrlLogin() => _authClient.GetAuthorizationUrl();
-
-    public async Task<string> ProcesarCallbackAsync(string code)
+    public string ObtenerUrlLogin(int usuarioId)
     {
-        var token = await _authClient.GetAccessTokenAsync(code);
+        string state = _authStateProtector.Proteger(usuarioId);
 
+        return _authClient.GetAuthorizationUrl(state);
+    }
+
+    public async Task<string> ProcesarCallbackAsync(string code, string state)
+    {
+        int IdUsuario = _authStateProtector.Desproteger(state) ?? throw new AuthException("Error state invalido");
+        var token = await _authClient.GetAccessTokenAsync(code);
         var credencial = await _repository.GetByUserIdAsync(token.UserId);
 
         if (credencial is null)
         {
-            credencial = new CredencialMercadoLibre(token.AccessToken, token.ExpiresIn, token.UserId, token.RefreshToken);
+            credencial = new CredencialMercadoLibre(token.AccessToken, token.ExpiresIn, token.UserId, token.RefreshToken, IdUsuario);
             await _repository.AddAsync(credencial);
             return "Cuenta de Mercado Libre vinculada correctamente";
         }
+        if (credencial.UsuarioId != IdUsuario)
+            throw new ConflictException("Esta cuenta de Mercado Libre ya está vinculada a otro usuario");
 
         credencial.ActualizarCredenciales(token.AccessToken, token.ExpiresIn, token.RefreshToken);
         await _repository.SaveChangesAsync();

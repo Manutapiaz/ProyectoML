@@ -1,24 +1,54 @@
-@url = http://localhost:5027
+@url = https://localhost:7176
+@url2 = https://localhost:5027
+@token = {{login.response.body.$.token}}
 
-GET {{url}}/api/categorias
-
-###
-
-POST {{url}}/api/categorias
+### Auth
+# @name login
+POST {{url}}/api/auth/login
 Content-Type: application/json
 
-{ "nombre": "Cables" }
+{
+  "Email": "@gmail.com",
+  "Password": ""
+}
+
+### Registrar usuario
+POST {{url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "NombreUsuario": "UsuaroPrueba",
+  "Email": "@gmail.com",
+  "Password": ""
+}
+
+
+
+### login ml
+GET {{url}}/api/mercadolibre/login
+Authorization: Bearer {{token}}
+
+### user me
+GET {{url}}/api/MercadoLibre/cuenta/161249179
+Authorization: Bearer {{token}}
+
+
+
+### Categorias
+GET {{url}}/api/categorias
+Authorization: Bearer {{token}}
 
 ### Obtener por id
 GET {{url}}/api/categorias/8
+Authorization: Bearer {{token}}
 
-
-
-### Lisa productos
+### Lista productos
 GET {{url}}/api/productos
+Authorization: Bearer {{token}}
 
 ### Crear Producto 1
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -32,6 +62,7 @@ Content-Type: application/json
 
 ### Crear Producto 2
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -45,6 +76,7 @@ Content-Type: application/json
 
 ### Crear Producto 3
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -58,6 +90,7 @@ Content-Type: application/json
 
 ### Crear Producto 4
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -71,6 +104,7 @@ Content-Type: application/json
 
 ### Crear Producto 5
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -84,76 +118,20 @@ Content-Type: application/json
 
 ### Obtener por id
 GET {{url}}/api/productos/12
-
-
-###
-GET {{url}}/api/ConfigTest/
-
-
-### login ml
-GET {{url}}/api/MercadoLibre/login
-
-### user me
-GET {{url}}/api/MercadoLibre/cuenta/3742351220
-
-
-
-### Buscar Categorias
-GET https://api.mercadolibre.com/sites/MLC/domain_discovery/search?q=set+vasos
-
-
-### Buscar Atributros de Categoria
-GET https://api.mercadolibre.com/categories/MLC413643/attributes
-
-### listing_types
-GET https://api.mercadolibre.com/sites/MLC/listing_types
-Authorization:
-Content-Type: application/json
-
-###
-GET https://api.mercadolibre.com/users/3742351220/available_listing_types?category_id=MLC457489
-Authorization: 
-Content-Type: application/json
-
-###
-POST https://api.mercadolibre.com/items
-Authorization: 
-Content-Type: application/json
-{
-
-  "family_name":  "Set 4 Vaso vidrio 270ml transparente 4 Piezas, 1 Un",
-  "category_id": "MLC457489",
-  "price": 5000,
-  "currency_id": "CLP",
-  "available_quantity": 15,
-  "buying_mode": "buy_it_now",
-  "listing_type_id": "gold_special",
-  "condition": "new",
-
-  "pictures": [
-    { "source": "https://URL-PUBLICA-DE-UNA-IMAGEN.jpg" }
-  ],
-  "attributes": [
-    { "id": "BRAND", "value_name": "Genérica" },
-    { "id": "MODEL", "value_name": "Vaso 270ml" },
-    { "id": "DRINKING_GLASS_PRODUCT_TYPE", "value_id": "6530859" },
-    { "id": "SALE_FORMAT", "value_id": "1359392" },
-    { "id": "UNITS_PER_PACK", "value_name": "4" },
-    { "id": "EMPTY_GTIN_REASON", "value_id": "17055159" },
-    { "id": "SELLER_SKU", "value_name": "TU-SKU" }
-  ]
-}
+Authorization: Bearer {{token}}
 
 ### Sugerencia
 GET  http://localhost:5027/api/sugerencias?nombreProducto=vaso+vidrio&userId=3742351220
 
 ###
 GET {{url}}/api/mercadolibre/sugerencias?nombreProducto=vaso+pepsi
+Authorization: Bearer {{token}}
 
-### Prueba de publicacion  ML 
+### Prueba de publicacion  ML
 
-### 1. Crear el producto 
+### 1. Crear el producto
 POST {{url}}/api/productos
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -165,11 +143,13 @@ Content-Type: application/json
   "stockInicial": 15
 }
 
-### 2. Atributos 
+### 2. Atributos
 GET {{url}}/api/mercadolibre/categorias/MLC457489/atributos?userId=3742351220
+Authorization: Bearer {{token}}
 
-### 3. Publicar en ML 
+### 3. Publicar en ML
 POST {{url}}/api/productos/5/publicaciones
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -188,3 +168,4 @@ Content-Type: application/json
 
 ### 4. Revisar lo que quedo guardado
 GET {{url}}/api/productos/{{crearCopas.response.body.$.id}}
+Authorization: Bearer {{token}}

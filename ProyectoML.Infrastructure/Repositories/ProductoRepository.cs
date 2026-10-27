@@ -12,22 +12,22 @@ public class ProductoRepository : IProductoRepository
     {
         _context = context;
     }
-    public Task<List<Producto>> GetAllAsync()
-        => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).OrderBy(p => p.Nombre).ToListAsync();
-
-    public Task<Producto?> GetByIdAsync(int id)
-        => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).FirstOrDefaultAsync(p => p.Id == id);
 
     public Task AddAsync(Producto producto)
     {
         _context.Productos.Add(producto);
         return _context.SaveChangesAsync();
     }
-
     public Task UpdateAsync(Producto producto)
         => _context.SaveChangesAsync();
+ 
+    public Task<Producto?> GetByIdAsync(int id, int usuarioId)
+        => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).FirstOrDefaultAsync(p => p.Id == id && p.UsuarioId == usuarioId);     
 
-    public Task<bool> ExistsBySKUAsync(string sku)    
-        => _context.Productos.AnyAsync(p => p.SKU == sku);
-    
+    public Task<bool> ExistsBySKUAsync(string sku, int usuarioId)    
+        => _context.Productos.AnyAsync(p => p.SKU == sku && p.UsuarioId == usuarioId);
+    public Task<List<Producto>> GetAllAsync(int usuarioId)
+     => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).
+        Where(p => p.UsuarioId == usuarioId).OrderBy(p => p.Nombre).ToListAsync();
+
 }

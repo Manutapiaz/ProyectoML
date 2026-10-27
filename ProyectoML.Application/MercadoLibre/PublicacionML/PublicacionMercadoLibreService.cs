@@ -31,7 +31,7 @@ public class PublicacionMercadoLibreService
     {
         var token = await _authService.ObtenerAccessTokenAsync(request.UserId, usuarioId);
 
-        var producto = await _productoRepository.GetByIdAsync(productoId)
+        var producto = await _productoRepository.GetByIdAsync(productoId, usuarioId)
             ?? throw new NotFoundException($"El producto con Id {productoId} no fue encontrado.");
 
         if (await _publicacionRepository.ExistsAsync(productoId, request.UserId))

@@ -12,7 +12,7 @@ public class ProductoConfiguration : IEntityTypeConfiguration<Producto>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.SKU).IsRequired().HasMaxLength(50);
-        builder.HasIndex(p => p.SKU).IsUnique();
+        builder.HasIndex(p => new { p.UsuarioId, p.SKU }).IsUnique();
 
         builder.Property(p => p.Nombre).IsRequired().HasMaxLength(200);
         builder.Property(p => p.Descripcion).HasMaxLength(2000);
@@ -33,10 +33,19 @@ public class ProductoConfiguration : IEntityTypeConfiguration<Producto>
                .HasForeignKey(i => i.ProductoId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne(p => p.Usuario)
+            .WithMany()
+            .HasForeignKey(p => p.UsuarioId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
         builder.Navigation(p => p.Movimientos)
                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Navigation(p => p.Imagenes)
            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Navigation(p => p.Usuario)
+         .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

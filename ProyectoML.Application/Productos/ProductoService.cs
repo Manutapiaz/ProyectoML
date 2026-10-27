@@ -20,44 +20,41 @@ public class ProductoService
 
 
 
-    public async Task<List<ProductoResponse>> GetAllAsync()
+    public async Task<List<ProductoResponse>> GetAllAsync(int usuarioId)
     {
-        var productos = await _productoRepository.GetAllAsync();
+        var productos = await _productoRepository.GetAllAsync(usuarioId);
         return productos.Select(p => ToResponse(p)).ToList();
     }
 
-    public async Task<ProductoResponse> GetByIdAsync(int id)
+    public async Task<ProductoResponse> GetByIdAsync(int id, int usuarioId)
     {
-        var producto = await _productoRepository.GetByIdAsync(id);
+        var producto = await _productoRepository.GetByIdAsync(id, usuarioId);
         if (producto == null) throw new NotFoundException($"Producto con id {id} no encontrado");
         return ToResponse(producto);
     }
 
-    public async Task<ProductoResponse> CreateAsync(CrearProductoRequest request)
+    public async Task<ProductoResponse> CreateAsync(CrearProductoRequest request, int usuarioId)
     {
-        if (await _productoRepository.ExistsBySKUAsync(request.SKU))
+        if (await _productoRepository.ExistsBySKUAsync(request.SKU, usuarioId))
         {
             throw new ConflictException($"Ya existe un producto con el SKU {request.SKU}");
         }
 
-        var categoria = await _categoriaRepository.GetByIdAsync(request.CategoriaId) ?? throw new NotFoundException($"No existe una categoría con id {request.CategoriaId}");
+        var categoria = await _categoriaRepository.GetByIdAsync(request.CategoriaId ,usuarioId) ?? throw new NotFoundException($"No existe una categoría con id {request.CategoriaId}");
 
         var producto = new Producto(
             request.SKU,
             request.Nombre,
             request.Descripcion ?? string.Empty,
             request.Precio,
-            categoria
+            categoria,
+            usuarioId
         );
-
-
 
         if (request.StockInicial != 0)
             producto.RegistrarMovimiento(request.StockInicial, MotivoMovimiento.Ingreso, "Stock inicial");
 
-
         request.Imagenes?.ForEach(url => producto.AgregarImagen(url));
-
 
         await _productoRepository.AddAsync(producto);
 
@@ -65,31 +62,31 @@ public class ProductoService
 
     }
 
-    public async Task<List<ProductoImagenResponse>> GetImagenesAsync(int productoId)
+    public async Task<List<ProductoImagenResponse>> GetImagenesAsync(int productoId, int usuarioId)
     {
-        var producto = await ObtenerProductoAsync(productoId);
+        var producto = await ObtenerProductoAsync(productoId, usuarioId);
         return producto.Imagenes.Select(ToImagenResponse).ToList();
     }
 
-    public async Task<ProductoImagenResponse> AgregarImagenAsync(int productoId, AgregarImagenRequest request)
+    public async Task<ProductoImagenResponse> AgregarImagenAsync(int productoId, AgregarImagenRequest request, int usuarioId)
     {
-        var producto = await ObtenerProductoAsync(productoId);
+        var producto = await ObtenerProductoAsync(productoId, usuarioId);
 
         producto.AgregarImagen(request.Url);
         await _productoRepository.UpdateAsync(producto);
         return ToImagenResponse(producto.Imagenes.Last());
     }
 
-    public async Task QuitarImagenAsync(int productoId, int imagenId)
+    public async Task QuitarImagenAsync(int productoId, int imagenId, int usuarioId)
     {
-        var producto = await ObtenerProductoAsync(productoId);
+        var producto = await ObtenerProductoAsync(productoId, usuarioId);
 
         producto.QuitarImagen(imagenId);
         await _productoRepository.UpdateAsync(producto);
     }
 
-    private async Task<Producto> ObtenerProductoAsync(int id)
-        => await _productoRepository.GetByIdAsync(id)
+    private async Task<Producto> ObtenerProductoAsync(int id, int usuarioId)
+        => await _productoRepository.GetByIdAsync(id, usuarioId)
             ?? throw new NotFoundException($"Producto con id {id} no encontrado");
 
     private static ProductoImagenResponse ToImagenResponse(ProductoImagen i) => new(i.Id, i.Url, i.FechaCreacion);

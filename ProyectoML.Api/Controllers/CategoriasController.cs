@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProyectoML.Application.Categorias;
 using ProyectoML.Application.MercadoLibre.PublicacionML;
+using System.Security.Claims;
 
 namespace ProyectoML.Api.Controllers;
 
@@ -20,15 +21,16 @@ public class CategoriasController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<CategoriaResponse>>> GetAll()
     {
-        var categorias = await _service.GetAllAsync();
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var categorias = await _service.GetAllAsync(usuarioId);
         return Ok(categorias);
     }
 
     [HttpPost]
     public async Task<ActionResult<CategoriaResponse>> Create(CrearCategoriaRequest request)
     {
-
-        var categoria = await _service.CreateAsync(request);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var categoria = await _service.CreateAsync(request, usuarioId);
         return CreatedAtAction(nameof(GetById), new { id = categoria.Id }, categoria);
 
     }
@@ -36,8 +38,8 @@ public class CategoriasController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CategoriaResponse>> GetById(int id)
     {
-
-        var categoria = await _service.GetByIdAsync(id);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var categoria = await _service.GetByIdAsync(id, usuarioId);
         return Ok(categoria);
 
     }
@@ -46,7 +48,8 @@ public class CategoriasController : ControllerBase
     [HttpPut("{id:int}/categoria-ml")]
     public async Task<ActionResult<CategoriaResponse>> Update(int id, string idCategoriaMLC)
     {
-        var categoria = await _service.UpdateAsync(id, idCategoriaMLC);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var categoria = await _service.UpdateAsync(id, idCategoriaMLC, usuarioId);
         return Ok(categoria);
     }
 

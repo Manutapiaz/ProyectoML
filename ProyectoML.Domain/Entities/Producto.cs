@@ -16,12 +16,13 @@ public class Producto
     public bool Activo { get; private set; }
     public DateTime FechaCreacion { get; private set; }
     public DateTime FechaActualizacion { get; private set; }
-
+    public int UsuarioId { get; private set; }
+    public Usuario Usuario { get; private set; }
     private Producto()
     {
 
     }
-    public Producto(string sku, string nombre, string descripcion, decimal precio, Categoria categoria)
+    public Producto(string sku, string nombre, string descripcion, decimal precio, Categoria categoria, int usuarioId)
     {
         if (string.IsNullOrWhiteSpace(sku)) throw new DomainException("SKU no puede ser vacio");
 
@@ -33,6 +34,7 @@ public class Producto
         this.Activo = true;
         this.FechaCreacion = DateTime.UtcNow;
         this.FechaActualizacion = DateTime.UtcNow;
+        this.UsuarioId = usuarioId;
         this.CambiarPrecio(precio);
     }
 

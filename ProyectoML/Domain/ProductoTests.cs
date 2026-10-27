@@ -36,7 +36,7 @@ public class ProductoTests
     public void Constructor_PrecioInvalido_LanzaDomainException(decimal precio)
     {
         Assert.Throws<DomainException>(() =>
-            new Producto("SKU-1", "Nombre", "Desc", precio, new Categoria("Cat", null)));
+            new Producto("SKU-1", "Nombre", "Desc", precio, new Categoria("Cat", null, 1),1));
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class ProductoTests
     public void Constructor_SkuVacio_LanzaDomainException(string sku)
     {
         Assert.Throws<DomainException>(() =>
-            new Producto(sku, "Nombre", "Desc", 1000m, new Categoria("Cat", null)));
+            new Producto(sku, "Nombre", "Desc", 1000m, new Categoria("Cat", null,1),1));
     }
 
     [Fact]
@@ -169,7 +169,7 @@ public class ProductoTests
 
 
     public static Producto CrearProducto()
-        => new("SKU-1", "Producto test", "Descripción", 1000m, new Categoria("Categoría test", null));
+        => new("SKU-1", "Producto test", "Descripción", 1000m, new Categoria("Categoría test", null,1),1);
 
 
 }

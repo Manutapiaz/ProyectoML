@@ -1,6 +1,7 @@
 ﻿using ProyectoML.Application.Auth;
 using ProyectoML.Application.Exceptions;
 using ProyectoML.Domain.Entities;
+using System.Security.Claims;
 
 namespace ProyectoML.Application.MercadoLibre;
 
@@ -48,10 +49,22 @@ public class MercadoLibreAuthService
         return "Credenciales de Mercado Libre actualizadas";
     }
 
-    public async Task<string> ObtenerAccessTokenAsync(long userId)
+    public async Task<bool> PerteneceAUsuarioAsync(long userId, int usuarioId)
     {
-        var credencial = await _repository.GetByUserIdAsync(userId)
-            ?? throw new NotFoundException($"No hay credenciales para el usuario {userId}. Autoriza la app primero.");
+        var credencial = await _repository.GetByUserIdAsync(userId);
+        return credencial != null && credencial.UsuarioId == usuarioId;
+    }
+
+    public async Task<string> ObtenerAccessTokenAsync(long userId, int usuarioId)
+    {
+     
+
+        var credencial = await _repository.GetByUserIdAsync(userId);
+
+        if (credencial == null || credencial.UsuarioId != usuarioId)
+        {
+            throw new NotFoundException($"No hay credenciales para el usuario {userId}. Autoriza la app primero.");
+        }
 
         if (!credencial.EstaExpirada())
             return credencial.AccessToken;

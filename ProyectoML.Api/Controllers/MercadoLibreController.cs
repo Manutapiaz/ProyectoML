@@ -43,7 +43,8 @@ public class MercadoLibreController : ControllerBase
     [HttpGet("cuenta/{userId:long}")]
     public async Task<ActionResult<DataUserDto>> Cuenta(long userId)
     {
-        var cuenta = await _mercadoLibreApiClienteService.ObtenerCuentaAsync(userId);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var cuenta = await _mercadoLibreApiClienteService.ObtenerCuentaAsync(userId, usuarioId);
         return Ok(cuenta);
     }
 
@@ -57,7 +58,8 @@ public class MercadoLibreController : ControllerBase
     [HttpGet("categorias/{categoryId}/atributos")]
     public async Task<ActionResult<List<AtributoCategoria>>> AtributosCategoria(string categoryId, long userId)
     {
-        var atributos = await _mercadoLibreApiClienteService.ObtenerAtributosCategoriaAsync(categoryId, userId);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var atributos = await _mercadoLibreApiClienteService.ObtenerAtributosCategoriaAsync(categoryId, userId, usuarioId);
         return Ok(atributos);
     }
 }

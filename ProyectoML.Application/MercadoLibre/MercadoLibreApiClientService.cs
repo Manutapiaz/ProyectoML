@@ -1,4 +1,5 @@
-﻿namespace ProyectoML.Application.MercadoLibre;
+﻿
+namespace ProyectoML.Application.MercadoLibre;
 
 public class MercadoLibreApiClientService
 {
@@ -14,9 +15,10 @@ public class MercadoLibreApiClientService
         _mercadoLibreAuthService = mercadoLibreAuthService;
     }
 
-    public async Task<DataUserDto> ObtenerCuentaAsync(long userId)
+    public async Task<DataUserDto> ObtenerCuentaAsync(long userId, int usuarioId)
     {
-        var token = await _mercadoLibreAuthService.ObtenerAccessTokenAsync(userId);
+       
+        var token = await _mercadoLibreAuthService.ObtenerAccessTokenAsync(userId, usuarioId);
         return await _mercadoLibreApiClient.ObtenerCuentaAsync(token);
     }
 
@@ -25,9 +27,9 @@ public class MercadoLibreApiClientService
         return await _mercadoLibreApiClient.SugerirCategoriaAsync(nombreProducto);
     }
 
-    public async Task<List<AtributoCategoria>> ObtenerAtributosCategoriaAsync(string categoryId, long userId)
+    public async Task<List<AtributoCategoria>> ObtenerAtributosCategoriaAsync(string categoryId, long userId, int usuarioId)
     {
-        var token = await _mercadoLibreAuthService.ObtenerAccessTokenAsync(userId);
+        var token = await _mercadoLibreAuthService.ObtenerAccessTokenAsync(userId, usuarioId);
         return await _mercadoLibreApiClient.ObtenerAtributosCategoriaAsync(categoryId, token);
     }
 }

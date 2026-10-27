@@ -20,14 +20,14 @@ public class CategoriaRepository : ICategoriaRepository
     public Task UpdateAsync(Categoria categoria)
         => _context.SaveChangesAsync();
 
-    public Task<Categoria?> GetByIdAsync(int id)
-        => _context.Categorias.FirstOrDefaultAsync(c => c.Id == id);
+    public Task<Categoria?> GetByIdAsync(int id, int usuarioId)
+        => _context.Categorias.FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
 
 
-    public Task<bool> ExistsByNombreAsync(string nombre)
-        => _context.Categorias.AnyAsync(c => c.Nombre == nombre);
+    public Task<bool> ExistsByNombreAsync(string nombre, int usuarioId)
+        => _context.Categorias.AnyAsync(c => c.Nombre == nombre && c.UsuarioId == usuarioId);
 
 
-    public Task<List<Categoria>> GetAllAsync()
-        => _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+    public Task<List<Categoria>> GetAllAsync(int usuarioId)
+        => _context.Categorias.Where(c => c.UsuarioId == usuarioId).OrderBy(c => c.Nombre).ToListAsync();
 }

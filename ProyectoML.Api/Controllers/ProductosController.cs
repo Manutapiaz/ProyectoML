@@ -23,21 +23,24 @@ public class ProductosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ProductoResponse>>> GetAll()
     {
-        var productos = await _service.GetAllAsync();
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var productos = await _service.GetAllAsync(usuarioId);
         return Ok(productos);
     }
 
     [HttpPost]
     public async Task<ActionResult<ProductoResponse>> Create(CrearProductoRequest request)
     {
-        var producto = await _service.CreateAsync(request);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var producto = await _service.CreateAsync(request, usuarioId);
         return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductoResponse>> GetById(int id)
     {
-        var producto = await _service.GetByIdAsync(id);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var producto = await _service.GetByIdAsync(id, usuarioId);
         return Ok(producto);
     }
 
@@ -45,21 +48,24 @@ public class ProductosController : ControllerBase
     [HttpGet("{id:int}/imagenes")]
     public async Task<ActionResult<List<ProductoImagenResponse>>> GetImagenes(int id)
     {
-        var imagenes = await _service.GetImagenesAsync(id);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var imagenes = await _service.GetImagenesAsync(id, usuarioId);
         return Ok(imagenes);
     }
 
     [HttpPost("{id:int}/imagenes")]
     public async Task<ActionResult<ProductoImagenResponse>> AddImagen(int id, AgregarImagenRequest request)
     {
-        var imagen = await _service.AgregarImagenAsync(id, request);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var imagen = await _service.AgregarImagenAsync(id, request, usuarioId);
         return StatusCode(StatusCodes.Status201Created, imagen);
     }
 
     [HttpDelete("{id:int}/imagenes/{imagenId:int}")]
     public async Task<IActionResult> DeleteImagen(int id, int imagenId)
     {
-        await _service.QuitarImagenAsync(id, imagenId);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _service.QuitarImagenAsync(id, imagenId, usuarioId);
         return NoContent();
     }
 

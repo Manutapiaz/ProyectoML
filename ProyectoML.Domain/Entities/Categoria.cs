@@ -9,16 +9,19 @@ public class Categoria
     public string? IdCategoriaMLC { get; private set; }
 
     public string Nombre { get; private set; }
-
+    public int UsuarioId { get; private set; }
+    public Usuario Usuario { get; private set; }
     private Categoria()
     {
 
     }
-    public Categoria(string nombreCategoria, string? idCategoriaMLC)
+    public Categoria(string nombreCategoria, string? idCategoriaMLC, int usuarioId)
     {
         if (string.IsNullOrWhiteSpace(nombreCategoria)) throw new DomainException("Categoria no puede venir vacia");
         this.Nombre = nombreCategoria;
         this.IdCategoriaMLC = idCategoriaMLC;
+        this.UsuarioId = usuarioId;
+
     }
 
     public void AsignarCategoriaMLC(string idCategoriaMLC)

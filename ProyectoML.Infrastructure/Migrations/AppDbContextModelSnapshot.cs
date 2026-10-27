@@ -39,9 +39,12 @@ namespace ProyectoML.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Nombre")
+                    b.HasIndex("UsuarioId", "Nombre")
                         .IsUnique();
 
                     b.ToTable("Categorias", (string)null);
@@ -147,11 +150,14 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
 
-                    b.HasIndex("SKU")
+                    b.HasIndex("UsuarioId", "SKU")
                         .IsUnique();
 
                     b.ToTable("Productos", (string)null);
@@ -261,6 +267,17 @@ namespace ProyectoML.Infrastructure.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("ProyectoML.Domain.Entities.Categoria", b =>
+                {
+                    b.HasOne("ProyectoML.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("ProyectoML.Domain.Entities.CredencialMercadoLibre", b =>
                 {
                     b.HasOne("ProyectoML.Domain.Entities.Usuario", "Usuario")
@@ -291,7 +308,15 @@ namespace ProyectoML.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ProyectoML.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Categoria");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ProyectoML.Domain.Entities.ProductoImagen", b =>

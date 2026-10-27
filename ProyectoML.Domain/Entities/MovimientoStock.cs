@@ -6,7 +6,7 @@ public class MovimientoStock
     public int Id { get; private set; }
 
     public int ProductoId { get; private set; }
-    public Producto Producto { get; private set; }
+    public Producto Producto { get; private set; } = null!;
 
     public int Cantidad { get; private set; }
 

@@ -8,9 +8,9 @@ public class ProductoImagen
 
     public int ProductoId { get; private set; }
 
-    public Producto Producto { get; private set; }
+    public Producto Producto { get; private set; } = null!;
 
-    public string Url { get; private set; }
+    public string Url { get; private set; } = null!;
 
     public DateTime FechaCreacion { get; private set; }
 

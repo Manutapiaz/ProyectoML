@@ -8,12 +8,12 @@ public class Categoria
 
     public string? IdCategoriaMLC { get; private set; }
 
-    public string Nombre { get; private set; }
+    public string Nombre { get; private set; } = null!;
     public int UsuarioId { get; private set; }
-    public Usuario Usuario { get; private set; }
+    public Usuario Usuario { get; private set; } = null!;
     private Categoria()
     {
-
+       ;
     }
     public Categoria(string nombreCategoria, string? idCategoriaMLC, int usuarioId)
     {

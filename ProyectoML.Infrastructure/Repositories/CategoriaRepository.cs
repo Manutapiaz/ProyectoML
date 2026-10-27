@@ -21,7 +21,7 @@ public class CategoriaRepository : ICategoriaRepository
         => _context.SaveChangesAsync();
 
     public Task<Categoria?> GetByIdAsync(int id, int usuarioId)
-        => _context.Categorias.FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
+        => _context.Categorias.Include(u => u.Usuario).FirstOrDefaultAsync(c => c.Id == id && c.UsuarioId == usuarioId);
 
 
     public Task<bool> ExistsByNombreAsync(string nombre, int usuarioId)
@@ -29,5 +29,5 @@ public class CategoriaRepository : ICategoriaRepository
 
 
     public Task<List<Categoria>> GetAllAsync(int usuarioId)
-        => _context.Categorias.Where(c => c.UsuarioId == usuarioId).OrderBy(c => c.Nombre).ToListAsync();
+        => _context.Categorias.Include(u => u.Usuario).Where(c => c.UsuarioId == usuarioId).OrderBy(c => c.Nombre).ToListAsync();
 }

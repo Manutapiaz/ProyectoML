@@ -6,12 +6,12 @@ namespace ProyectoML.Domain.Entities;
 public class CredencialMercadoLibre
 {
 
-    public string AccessToken { get; private set; }
+    public string AccessToken { get; private set; } = null!;
     public DateTime ExpiresAt { get; private set; }
     public long UserId { get; private set; }
     public int UsuarioId { get; private set; }
-    public Usuario Usuario { get; private set; }
-    public string RefreshToken { get; private set; }
+    public Usuario Usuario { get; private set; } = null!;
+    public string RefreshToken { get; private set; } = null!;
 
 
     private CredencialMercadoLibre()

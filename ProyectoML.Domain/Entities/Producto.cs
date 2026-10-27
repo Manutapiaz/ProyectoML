@@ -5,19 +5,19 @@ namespace ProyectoML.Domain.Entities;
 public class Producto
 {
     public int Id { get; private set; }
-    public string SKU { get; private set; }
-    public string Nombre { get; private set; }
+    public string SKU { get; private set; } = null!;
+    public string Nombre { get; private set; } = null!;
     public string? Descripcion { get; private set; }
     public decimal Precio { get; private set; }
     public int Stock { get; private set; }
     public int CategoriaId { get; private set; }
-    public Categoria Categoria { get; private set; }
+    public Categoria Categoria { get; private set; } = null!;
 
     public bool Activo { get; private set; }
     public DateTime FechaCreacion { get; private set; }
     public DateTime FechaActualizacion { get; private set; }
     public int UsuarioId { get; private set; }
-    public Usuario Usuario { get; private set; }
+    public Usuario Usuario { get; private set; } = null!;
     private Producto()
     {
 

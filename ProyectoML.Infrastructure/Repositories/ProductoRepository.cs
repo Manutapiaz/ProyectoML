@@ -22,12 +22,12 @@ public class ProductoRepository : IProductoRepository
         => _context.SaveChangesAsync();
  
     public Task<Producto?> GetByIdAsync(int id, int usuarioId)
-        => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).FirstOrDefaultAsync(p => p.Id == id && p.UsuarioId == usuarioId);     
+        => _context.Productos.Include(p => p.Usuario).Include(p => p.Categoria).Include(p => p.Imagenes).FirstOrDefaultAsync(p => p.Id == id && p.UsuarioId == usuarioId);     
 
     public Task<bool> ExistsBySKUAsync(string sku, int usuarioId)    
         => _context.Productos.AnyAsync(p => p.SKU == sku && p.UsuarioId == usuarioId);
     public Task<List<Producto>> GetAllAsync(int usuarioId)
-     => _context.Productos.Include(p => p.Categoria).Include(p => p.Imagenes).
+     => _context.Productos.Include(p => p.Usuario).Include(p => p.Categoria).Include(p => p.Imagenes).
         Where(p => p.UsuarioId == usuarioId).OrderBy(p => p.Nombre).ToListAsync();
 
 }

@@ -15,7 +15,7 @@ public class GlobalExceptionHandler(IProblemDetailsService problemDetails) : IEx
             ConflictException => (409, "Conflicto"),
             NotFoundException => (404, "No encontrado"),
             AuthException => (401, "Error de autenticación"),
-            MercadoLibreException { StatusCode: 400 } => (400, "Mercado Libre rechazó la publicación"),
+            MercadoLibreException { StatusCode: 400 } => (400, "Mercado Libre rechazó la solicitud"),
             MercadoLibreException => (502, "Error al comunicarse con Mercado Libre"),
             _ => (500, "Error interno")
         };

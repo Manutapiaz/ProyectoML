@@ -34,8 +34,8 @@ public class MercadoLibreAuthClient : IMercadoLibreAuthClient
         });
 
         var response = await _httpClient.PostAsync("/oauth/token", form);
-        response.EnsureSuccessStatusCode();
-
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
         var ml = await response.Content.ReadFromJsonAsync<MlTokenResponse>(JsonOptions);
         return new TokenResult(ml!.AccessToken, ml.ExpiresIn, ml.RefreshToken, ml.UserId);
     }
@@ -52,7 +52,8 @@ public class MercadoLibreAuthClient : IMercadoLibreAuthClient
         });
         
         var response = await _httpClient.PostAsync("/oauth/token", form);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
 
         var ml = await response.Content.ReadFromJsonAsync<MlTokenResponse>(JsonOptions);
         return new TokenResult(ml!.AccessToken, ml.ExpiresIn, ml.RefreshToken, ml.UserId);

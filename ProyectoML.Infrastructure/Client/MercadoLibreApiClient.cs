@@ -33,7 +33,8 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
         var ml = await response.Content.ReadFromJsonAsync<MlUserResponse>(JsonOptions);
         return new DataUserDto(ml!.Id, ml.Nickname, ml.SiteId, ml.RegistrationDate);
 
@@ -44,7 +45,8 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/sites/MLC/domain_discovery/search?q={Uri.EscapeDataString(nombreProducto)}");
 
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
         var ml = await response.Content.ReadFromJsonAsync<List<MlCategoriaSugerida>>(JsonOptions);
 
         return ml!
@@ -58,7 +60,8 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
         var ml = await response.Content.ReadFromJsonAsync<List<MlAttributeCategory>>(JsonOptions);
 
         return ml!
@@ -94,7 +97,7 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
 
         var response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
-            throw await CrearExcepcionAsync(response);
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
 
         var ml = await response.Content.ReadFromJsonAsync<MlItemResponse>(JsonOptions);
         return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
@@ -107,7 +110,7 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
-            throw await CrearExcepcionAsync(response);
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
         var ml = await response.Content.ReadFromJsonAsync<MlItemResponse>(JsonOptions);
         return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
     }
@@ -119,28 +122,7 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         _ => EstadoPublicacion.EnRevision
     };
 
-    private static async Task<MercadoLibreException> CrearExcepcionAsync(HttpResponseMessage response)
-    {
-        var body = await response.Content.ReadAsStringAsync();
-        var detalle = body;
 
-        try
-        {
-            var error = JsonSerializer.Deserialize<MlError>(body, JsonOptions);
-            var causas = error?.Cause?
-                .Where(c => c.Type != "warning" && !string.IsNullOrWhiteSpace(c.Message))
-                .Select(c => c.Message)
-                .ToList() ?? [];
-
-            if (causas.Count > 0) detalle = string.Join(" | ", causas);
-            else if (!string.IsNullOrWhiteSpace(error?.Message)) detalle = error.Message;
-        }
-        catch (JsonException)
-        {
-        }
-
-        return new MercadoLibreException(detalle, (int)response.StatusCode);
-    }
 
     private record MlItemRequest(
         string FamilyName,
@@ -160,9 +142,6 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
 
     private record MlItemResponse(string Id, string Status, string? Permalink);
 
-    private record MlError(string? Message, List<MlErrorCause>? Cause);
-
-    private record MlErrorCause(string? Type, string? Message);
 
 
 

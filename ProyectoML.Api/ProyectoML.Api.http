@@ -8,7 +8,7 @@ POST {{url}}/api/auth/login
 Content-Type: application/json
 
 {
-  "Email": "@gmail.com",
+  "Email": "email@gmail.com",
   "Password": ""
 }
 
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
   "NombreUsuario": "UsuaroPrueba",
-  "Email": "@gmail.com",
+  "Email": "email@gmail.com",
   "Password": ""
 }
 

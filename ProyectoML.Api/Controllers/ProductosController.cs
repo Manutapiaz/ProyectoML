@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Application.Productos;
+using System.Security.Claims;
 
 
 namespace ProyectoML.Api.Controllers;
@@ -65,7 +66,8 @@ public class ProductosController : ControllerBase
     [HttpPost("{id:int}/publicaciones")]
     public async Task<ActionResult<PublicacionMercadoLibreDto>> Publicar(int id, PublicarProductoRequest request)
     {
-        var publicacion = await _publicacionService.PublicarAsync(id, request);
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var publicacion = await _publicacionService.PublicarAsync(id, request,usuarioId);
         return StatusCode(StatusCodes.Status201Created, publicacion);
     }
 

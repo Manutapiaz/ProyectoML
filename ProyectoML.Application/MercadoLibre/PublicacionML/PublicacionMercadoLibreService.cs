@@ -27,8 +27,9 @@ public class PublicacionMercadoLibreService
         _mercadoLibreApiClient = mercadoLibreApiClient;
     }
 
-    public async Task<PublicacionMercadoLibreDto> PublicarAsync(int productoId, PublicarProductoRequest request)
+    public async Task<PublicacionMercadoLibreDto> PublicarAsync(int productoId, PublicarProductoRequest request, int usuarioId)
     {
+        var token = await _authService.ObtenerAccessTokenAsync(request.UserId, usuarioId);
 
         var producto = await _productoRepository.GetByIdAsync(productoId)
             ?? throw new NotFoundException($"El producto con Id {productoId} no fue encontrado.");
@@ -44,7 +45,7 @@ public class PublicacionMercadoLibreService
         if (producto.Imagenes.Count < 1) throw new DomainException($"El producto debe tener al menos 1 Imagen registrada");
 
     
-        var token = await _authService.ObtenerAccessTokenAsync(request.UserId);
+  
       
         var atributos = (request.Atributos ?? [])
             .Where(a => !string.Equals(a.Id, AtributoSku, StringComparison.OrdinalIgnoreCase))
@@ -79,28 +80,36 @@ public class PublicacionMercadoLibreService
         return ToResponse(publicacion);
     }
 
-    public async Task<PublicacionMercadoLibreDto> SincronizarAsync(string externalId)
+    public async Task<PublicacionMercadoLibreDto> SincronizarAsync(string externalId, int usuarioId)
     {
-        var publicacion = await _publicacionRepository.GetByExternalIdAsync(externalId) ?? throw new NotFoundException("No existe la publicacion ingresada");
-        var token = await _authService.ObtenerAccessTokenAsync(publicacion.UserId);
+        var publicacion = await _publicacionRepository.GetByExternalIdAsync(externalId);
+        if (publicacion == null || !await _authService.PerteneceAUsuarioAsync(publicacion.UserId, usuarioId))
+        {
+            throw new NotFoundException("No existe la publicacion ingresada");
+        }
+        var token = await _authService.ObtenerAccessTokenAsync(publicacion.UserId, usuarioId);
         var publicacionUpdate = await _mercadoLibreApiClient.BuscarPublicacionAsync(publicacion.ExternalId, token);
         publicacion.CambiarEstado(publicacionUpdate.Estado);
         await _publicacionRepository.UpdateAsync(publicacion);
         return ToResponse(publicacion);
     }
 
-    public async Task<PublicacionMercadoLibreDto> GetPublicacionByIdAsync(string externalId)
+    public async Task<PublicacionMercadoLibreDto> GetPublicacionByIdAsync(string externalId, int usuarioId)
     {
         var publicacion = await _publicacionRepository.GetByExternalIdAsync(externalId);
-        if (publicacion == null)
+        if (publicacion == null || !await _authService.PerteneceAUsuarioAsync(publicacion.UserId, usuarioId))
         {
             throw new NotFoundException($"La publicación con Id {externalId} no fue encontrada.");
         }
         return ToResponse(publicacion);
     }
 
-    public async Task<List<PublicacionMercadoLibreDto>> GetAllAsync(long userId)
+    public async Task<List<PublicacionMercadoLibreDto>> GetAllAsync(long userId, int usuarioId)
     {
+        if (!await _authService.PerteneceAUsuarioAsync(userId, usuarioId))
+        {
+            throw new NotFoundException($"No hay credenciales para el usuario {userId}. Autoriza la app primero.");
+        }
         var publicaciones = await _publicacionRepository.GetAllAsync(userId);
         return publicaciones.Select(p => ToResponse(p)).ToList();
     }

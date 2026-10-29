@@ -1,18 +1,19 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client.NativeInterop;
-using ProyectoML.Application.MercadoLibre;
-using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Application.Exceptions;
+using ProyectoML.Application.MercadoLibre;
+using ProyectoML.Application.MercadoLibre.NotificacionML;
+using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Domain.Entities;
 using ProyectoML.Domain.Enums;
 using ProyectoML.Infrastructure.MercadoLibre;
-using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ProyectoML.Infrastructure.Client;
 
@@ -114,6 +115,24 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         var ml = await response.Content.ReadFromJsonAsync<MlItemResponse>(JsonOptions);
         return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
     }
+
+    public async Task<Orden> ObtenerOrdenAsync(long orderId, string token)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/orders/{orderId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var response = await _httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
+        var ml = await response.Content.ReadFromJsonAsync<MlOrdenResponse>(JsonOptions);
+        return new Orden(
+            ml!.Id,
+            ml.Status,
+            ml.OrderItems.Select(i => new ItemOrden(i.Item.Id, i.Quantity)).ToList());
+    }
+
+    
+
+
     private static EstadoPublicacion MapearEstado(string status) => status switch
     {
         "active" => EstadoPublicacion.Activo,
@@ -163,6 +182,13 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
     private record MlAttributeValue(string Id, string Name);
 
     private record MlUserResponse(long Id, string Nickname, string SiteId, DateTimeOffset RegistrationDate);
+
+    private record MlOrdenResponse(long Id, string Status, List<MlOrdenItem> OrderItems);
+
+    private record MlOrdenItem(MlOrdenItemDetalle Item, int Quantity);
+
+    private record MlOrdenItemDetalle(string Id);
+
     private static readonly JsonSerializerOptions JsonOptions =
        new()
        {

@@ -104,7 +104,9 @@ namespace ProyectoML.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductoId");
+                    b.HasIndex("ProductoId", "Referencia")
+                        .IsUnique()
+                        .HasFilter("[Motivo] = 'Venta'");
 
                     b.ToTable("MovimientoStock", (string)null);
                 });

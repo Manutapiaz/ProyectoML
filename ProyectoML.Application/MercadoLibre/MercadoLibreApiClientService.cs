@@ -4,10 +4,7 @@ namespace ProyectoML.Application.MercadoLibre;
 public class MercadoLibreApiClientService
 {
     private readonly IMercadoLibreApiClient _mercadoLibreApiClient;
-
-    
     private readonly MercadoLibreAuthService _mercadoLibreAuthService;
-
 
     public MercadoLibreApiClientService(IMercadoLibreApiClient mercadoLibreApiClient, MercadoLibreAuthService mercadoLibreAuthService)
     {
@@ -17,7 +14,6 @@ public class MercadoLibreApiClientService
 
     public async Task<DataUserDto> ObtenerCuentaAsync(long userId, int usuarioId)
     {
-       
         var token = await _mercadoLibreAuthService.ObtenerAccessTokenAsync(userId, usuarioId);
         return await _mercadoLibreApiClient.ObtenerCuentaAsync(token);
     }

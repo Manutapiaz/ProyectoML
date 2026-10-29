@@ -127,9 +127,23 @@ GET  http://localhost:5027/api/sugerencias?nombreProducto=vaso+vidrio&userId=374
 GET {{url}}/api/mercadolibre/sugerencias?nombreProducto=vaso+pepsi
 Authorization: Bearer {{token}}
 
-### Prueba de publicacion  ML
+### ===== Recorrido completo: producto -> publicacion -> venta (webhook) =====
+@cuentaMl = 3742351220
+@orderId = 0
 
-### 1. Crear el producto
+### 1. Crear categoria vinculada a ML
+# @name crearCategoria
+POST {{url}}/api/categorias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Copas",
+  "idCategoriaMLC": "MLC457489"
+}
+
+### 2. Crear el producto
+# @name crearProducto
 POST {{url}}/api/productos
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -139,23 +153,23 @@ Content-Type: application/json
   "nombre": "Set 4 Copas De Vino Vidrio Transparente 350ml",
   "descripcion": "Set de 4 copas de vino de vidrio transparente",
   "precio": 9990,
-  "categoriaId": 1,
+  "categoriaId": {{crearCategoria.response.body.$.id}},
+  "imagenes": [ "https://images.unsplash.com/photo-1514651029128-173d2e6ea851?w=1200&fm=jpg" ],
   "stockInicial": 15
 }
 
-### 2. Atributos
-GET {{url}}/api/mercadolibre/categorias/MLC457489/atributos?userId=3742351220
+### 3. Atributos de la categoria (opcional, para revisar)
+GET {{url}}/api/mercadolibre/categorias/MLC457489/atributos?userId={{cuentaMl}}
 Authorization: Bearer {{token}}
 
-### 3. Publicar en ML
-POST {{url}}/api/productos/5/publicaciones
+### 4. Publicar en ML
+# @name publicar
+POST {{url}}/api/productos/{{crearProducto.response.body.$.id}}/publicaciones
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "userId": 3742351220,
-  "categoryId": "MLC457489",
-  "pictures": [ "https://images.unsplash.com/photo-1514651029128-173d2e6ea851?w=1200&fm=jpg" ],
+  "userId": {{cuentaMl}},
   "atributos": [
     { "id": "BRAND", "valueName": "Genérica" },
     { "id": "MODEL", "valueName": "Copa vino 350ml" },
@@ -166,6 +180,24 @@ Content-Type: application/json
   ]
 }
 
-### 4. Revisar lo que quedo guardado
-GET {{url}}/api/productos/{{crearCopas.response.body.$.id}}
+### 5. Ver la publicacion
+GET {{url}}/api/publicaciones/{{publicar.response.body.$.externalId}}
+Authorization: Bearer {{token}}
+
+### 6. Simular la notificacion de ML (poner el id real de la orden en @orderId)
+POST {{url}}/api/mercadolibre/notificaciones
+Content-Type: application/json
+
+{
+  "resource": "/orders/{{orderId}}",
+  "user_id": {{cuentaMl}},
+  "topic": "orders_v2",
+  "application_id": 0,
+  "attempts": 1,
+  "sent": "2026-10-28T00:00:00.000Z",
+  "received": "2026-10-28T00:00:00.000Z"
+}
+
+### 7. Revisar el stock despues de la venta
+GET {{url}}/api/productos/{{crearProducto.response.body.$.id}}
 Authorization: Bearer {{token}}

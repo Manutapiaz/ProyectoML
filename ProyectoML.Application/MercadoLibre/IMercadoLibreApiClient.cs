@@ -1,4 +1,5 @@
-﻿using ProyectoML.Application.MercadoLibre.PublicacionML;
+﻿using ProyectoML.Application.MercadoLibre.NotificacionML;
+using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,4 +14,5 @@ public interface IMercadoLibreApiClient
     Task<List<AtributoCategoria>> ObtenerAtributosCategoriaAsync(string categoryId, string token);
     Task<ItemPublicado> PublicarItemAsync(ItemMercadoLibre item, string token);
     Task<ItemPublicado> BuscarPublicacionAsync(string idProductoMLC, string token);
+    Task<Orden> ObtenerOrdenAsync(long orderId, string token);
 }

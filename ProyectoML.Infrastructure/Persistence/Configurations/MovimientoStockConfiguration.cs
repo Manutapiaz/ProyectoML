@@ -14,6 +14,10 @@ public class MovimientoStockConfiguration : IEntityTypeConfiguration<MovimientoS
 
         builder.Property(c => c.Referencia).HasMaxLength(100);
         builder.Property(c => c.Motivo).HasConversion<string>().HasMaxLength(20);
-        
+
+        builder.HasIndex(c => new { c.ProductoId, c.Referencia })
+            .IsUnique()
+            .HasFilter("[Motivo] = 'Venta'");
+
     }
 }

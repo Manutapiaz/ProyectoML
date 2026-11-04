@@ -1,9 +1,14 @@
 ﻿
 
+using ProyectoML.Application.Auth;
 using ProyectoML.Application.Categorias;
 using ProyectoML.Application.Exceptions;
+using ProyectoML.Application.MercadoLibre;
+using ProyectoML.Application.MercadoLibre.PublicacionML;
 using ProyectoML.Domain.Entities;
 using ProyectoML.Domain.Enums;
+using ProyectoML.Domain.Exceptions;
+using System.Diagnostics;
 
 namespace ProyectoML.Application.Productos;
 
@@ -12,13 +17,23 @@ public class ProductoService
     private readonly IProductoRepository _productoRepository;
     private readonly ICategoriaRepository _categoriaRepository;
 
-    public ProductoService(IProductoRepository productoRepository, ICategoriaRepository categoriaRepository)
+    private readonly MercadoLibreAuthService _authService;
+    private readonly IPublicacionMercadoLibreRepository _publicacionRepository;
+    private readonly IMercadoLibreApiClient _mercadoLibreApiClient;
+
+    public ProductoService(
+        IProductoRepository productoRepository,
+        ICategoriaRepository categoriaRepository,
+        IPublicacionMercadoLibreRepository publicacionRepository,
+        IMercadoLibreApiClient mercadoLibreApiClient,
+        MercadoLibreAuthService mercadoLibreAuthService)
     {
         _productoRepository = productoRepository;
         _categoriaRepository = categoriaRepository;
+        _publicacionRepository = publicacionRepository;
+        _mercadoLibreApiClient = mercadoLibreApiClient;
+        _authService = mercadoLibreAuthService;
     }
-
-
 
     public async Task<List<ProductoResponse>> GetAllAsync(int usuarioId)
     {
@@ -40,7 +55,7 @@ public class ProductoService
             throw new ConflictException($"Ya existe un producto con el SKU {request.SKU}");
         }
 
-        var categoria = await _categoriaRepository.GetByIdAsync(request.CategoriaId ,usuarioId) ?? throw new NotFoundException($"No existe una categoría con id {request.CategoriaId}");
+        var categoria = await _categoriaRepository.GetByIdAsync(request.CategoriaId, usuarioId) ?? throw new NotFoundException($"No existe una categoría con id {request.CategoriaId}");
 
         var producto = new Producto(
             request.SKU,
@@ -61,6 +76,43 @@ public class ProductoService
         return ToResponse(producto);
 
     }
+  
+    public async Task<ProductoResponse> CambiarPrecioAsync(int id, int usuarioId, int precio)
+    {
+        var producto = await _productoRepository.GetByIdAsync(id, usuarioId) ?? throw new NotFoundException($"No existe un producto con id {id}");
+        producto.CambiarPrecio(precio);
+        await _productoRepository.UpdateAsync(producto);
+
+        var publicacion = await _publicacionRepository.GetByIdProductoAsync(id);
+        if (publicacion == null || publicacion.Estado == EstadoPublicacion.Cerrada)
+            return ToResponse(producto);
+
+        var token = await _authService.ObtenerAccessTokenAsync(publicacion.UserId, usuarioId);
+        await _mercadoLibreApiClient.ActualizarItemAsync(publicacion.ExternalId, (int)producto.Precio, null, token);
+
+        return ToResponse(producto);
+    }
+
+    public async Task<ProductoResponse> AjustarStockAsync(int id, int usuarioId, int stock)
+    {
+        if (stock == 0) throw new DomainException("La cantidad no puede ser 0");
+
+        var producto = await _productoRepository.GetByIdAsync(id, usuarioId) ?? throw new NotFoundException($"No existe un producto con id {id}");
+        producto.RegistrarMovimiento(stock, MotivoMovimiento.Ajuste, "Ajuste Stock");
+        await _productoRepository.UpdateAsync(producto);
+
+        var publicacion = await _publicacionRepository.GetByIdProductoAsync(id);
+        if (publicacion == null || publicacion.Estado == EstadoPublicacion.Cerrada)
+            return ToResponse(producto);
+
+        var token = await _authService.ObtenerAccessTokenAsync(publicacion.UserId, usuarioId);
+        await _mercadoLibreApiClient.ActualizarItemAsync(publicacion.ExternalId, null, producto.Stock, token);
+
+        return ToResponse(producto);
+    }
+
+
+
 
     public async Task<List<ProductoImagenResponse>> GetImagenesAsync(int productoId, int usuarioId)
     {

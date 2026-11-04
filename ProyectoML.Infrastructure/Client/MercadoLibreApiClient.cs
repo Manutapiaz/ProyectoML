@@ -104,6 +104,24 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
     }
 
+    public async Task<ItemPublicado> ActualizarItemAsync(string externalId, int? Price, int? Stock, string token)
+    {
+
+        var body = new MlItemActualizarRequest(Price, Stock);
+
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/items/{externalId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Content = JsonContent.Create(body, options: JsonOptions);
+
+        var response = await _httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            throw await MercadoLibreErrores.CrearExcepcionAsync(response);
+
+        var ml = await response.Content.ReadFromJsonAsync<MlItemResponse>(JsonOptions);
+        return new ItemPublicado(ml!.Id, MapearEstado(ml.Status), ml.Permalink);
+    }
+
+
     public async Task<ItemPublicado> BuscarPublicacionAsync(string idProductoMLC, string token)
     {
 
@@ -130,7 +148,7 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
             ml.OrderItems.Select(i => new ItemOrden(i.Item.Id, i.Quantity)).ToList());
     }
 
-    
+
 
 
     private static EstadoPublicacion MapearEstado(string status) => status switch
@@ -154,6 +172,10 @@ public class MercadoLibreApiClient : IMercadoLibreApiClient
         string Condition,
         List<MlPicture> Pictures,
         List<MlItemAttribute> Attributes);
+    private record MlItemActualizarRequest(
+        int? Price,
+        int? AvailableQuantity
+        );
 
     private record MlPicture(string Source);
 

@@ -13,6 +13,8 @@ public interface IMercadoLibreApiClient
     Task<List<SugerenciaCategoria>> SugerirCategoriaAsync(string nombreProducto);
     Task<List<AtributoCategoria>> ObtenerAtributosCategoriaAsync(string categoryId, string token);
     Task<ItemPublicado> PublicarItemAsync(ItemMercadoLibre item, string token);
+    Task<ItemPublicado> ActualizarItemAsync(string externalId, int? Price, int? Stock, string token);
     Task<ItemPublicado> BuscarPublicacionAsync(string idProductoMLC, string token);
     Task<Orden> ObtenerOrdenAsync(long orderId, string token);
+
 }

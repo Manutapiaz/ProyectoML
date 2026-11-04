@@ -11,3 +11,8 @@ public record ProductoResponse(int Id, string SKU, string Nombre, string? Descri
 public record AgregarImagenRequest(string Url);
 
 public record ProductoImagenResponse(int Id, string Url, DateTime FechaCreacion);
+
+
+public record AjustarStockRequest(int Stock);
+
+public record ActualizarPrecioRequest(int Precio);

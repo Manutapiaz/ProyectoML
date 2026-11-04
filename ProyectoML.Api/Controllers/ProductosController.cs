@@ -28,6 +28,23 @@ public class ProductosController : ControllerBase
         return Ok(productos);
     }
 
+
+    [HttpPatch("{id:int}/precios")]
+    public async Task<ActionResult<ProductoResponse>> CambiarPrecio(int id, [FromBody] ActualizarPrecioRequest actualizarPrecio)
+    {
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var producto = await _service.CambiarPrecioAsync(id, usuarioId, actualizarPrecio.Precio);
+        return Ok(producto);
+    }
+
+    [HttpPost("{id:int}/movimientos")]
+    public async Task<ActionResult<ProductoResponse>> AjustarStock(int id, [FromBody] AjustarStockRequest ajusta)
+    {
+        var usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var producto = await _service.AjustarStockAsync(id, usuarioId, ajusta.Stock);
+        return Ok(producto);
+    }
+
     [HttpPost]
     public async Task<ActionResult<ProductoResponse>> Create(CrearProductoRequest request)
     {
@@ -35,6 +52,7 @@ public class ProductosController : ControllerBase
         var producto = await _service.CreateAsync(request, usuarioId);
         return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);
     }
+
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductoResponse>> GetById(int id)

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProyectoML.Api.Handlers;
@@ -89,14 +90,14 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-builder.Services.AddDataProtection();
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("ProyectoML");
 builder.Services.AddSingleton<IAuthStateProtector, AuthStateProtector>();
 
 
+
 var app = builder.Build();
-
-
-
 
 app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())

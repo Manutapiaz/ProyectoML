@@ -8,8 +8,8 @@ POST {{url}}/api/auth/login
 Content-Type: application/json
 
 {
-  "Email": "email@gmail.com",
-  "Password": ""
+  "Email": "{{email}}",
+  "Password": "{{password}}"
 }
 
 ### Registrar usuario
@@ -19,7 +19,7 @@ Content-Type: application/json
 {
   "NombreUsuario": "UsuaroPrueba",
   "Email": "email@gmail.com",
-  "Password": ""
+  "Password": "manu1234"
 }
 
 
@@ -29,7 +29,7 @@ GET {{url}}/api/mercadolibre/login
 Authorization: Bearer {{token}}
 
 ### user me
-GET {{url}}/api/MercadoLibre/cuenta/161249179
+GET {{url}}/api/MercadoLibre/cuenta/3742351220
 Authorization: Bearer {{token}}
 
 

@@ -1,0 +1,36 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest   
+    environment:
+      ACCEPT_EULA: "Y"                                   
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}                  
+    ports:
+      - "1433:1433"        
+    volumes:
+      - sqldata:/var/opt/mssql      
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+  api:
+    build: .
+    ports:
+      - "5000:8080" 
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__ProyectoMlCONN: Server=sqlserver,1433; User Id=sa; Password=${SA_PASSWORD}; Database=ProyectoML;TrustServerCertificate=True
+      Jwt__Key: ${JWT_KEY}
+      MercadoLibre__ClientId: ${ML_CLIENT_ID}
+      MercadoLibre__ClientSecret: ${ML_CLIENT_SECRET}
+      DataProtection__RutaClaves: /keys
+      BaseDatos__AplicarMigraciones: "true"
+      MercadoLibre__RedirectUri: ${DEV_TUNNEL}
+    volumes: 
+      - dpkeys:/keys
+volumes:
+  sqldata:
+  dpkeys:

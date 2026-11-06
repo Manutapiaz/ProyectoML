@@ -91,13 +91,26 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-builder.Services.AddDataProtection()
+var rutaClaves = builder.Configuration["DataProtection:RutaClaves"];
+var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName("ProyectoML");
+if (!string.IsNullOrWhiteSpace(rutaClaves))
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(rutaClaves));
+
+
+
 builder.Services.AddSingleton<IAuthStateProtector, AuthStateProtector>();
 
 
 
 var app = builder.Build();
+var aplicarMigraciones = builder.Configuration.GetValue<bool>("BaseDatos:AplicarMigraciones");
+if (aplicarMigraciones)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())

@@ -138,6 +138,8 @@ Todos requieren el header `Authorization: Bearer <token>`, salvo los marcados co
 | POST | `/api/productos/{id}/imagenes` | Agrega una imagen |
 | DELETE | `/api/productos/{id}/imagenes/{imagenId}` | Elimina una imagen |
 | POST | `/api/productos/{id}/publicaciones` | Publica el producto en Mercado Libre |
+| PATCH | `/api/productos/{id}/precios` | Cambia el precio y lo actualiza en Mercado Libre |
+| POST | `/api/productos/{id}/movimientos` | Registra un ajuste de stock (suma o resta) y lo actualiza en Mercado Libre |
 
 **Mercado Libre**
 
@@ -166,8 +168,34 @@ dotnet test
 
 Cubren las reglas de negocio de `Producto`: validaciones del constructor, cambios de precio, imágenes (máximo, URL válida, duplicados) y registro de movimientos de stock (ingresos, ventas, ajustes y casos inválidos, verificando que la entidad no quede en un estado inconsistente).
 
-## Próximos pasos
+## Docker
 
-- Cifrar en la base de datos los tokens de Mercado Libre
-- Actualizar stock y precio en Mercado Libre cuando cambian en el sistema
-- Docker Compose para levantar API y base de datos con un comando
+Alternativa a la ejecución local: levanta la API y SQL Server en contenedores, sin instalar .NET ni LocalDB.
+
+**Requisitos:** Docker Desktop y, para vincular cuentas de Mercado Libre, una URL pública (por ejemplo, Dev Tunnels).
+
+Crear un archivo `.env` en la raíz del repositorio (está en `.gitignore`):
+
+```env
+SA_PASSWORD=<clave de al menos 8 caracteres con mayúsculas, minúsculas y números>
+JWT_KEY=<clave aleatoria de al menos 32 caracteres>
+ML_CLIENT_ID=<client id>
+ML_CLIENT_SECRET=<client secret>
+DEV_TUNNEL=https://<url-publica>/api/mercadolibre/callback
+```
+
+```bash
+docker compose up --build
+```
+
+La API queda en `http://localhost:5000` y las migraciones se aplican al arrancar. Los datos de SQL Server y las claves de Data Protection (con las que se cifran los tokens de Mercado Libre) se guardan en volúmenes, así que se conservan al recrear los contenedores.
+
+Para Mercado Libre, la URL pública tiene que apuntar al puerto 5000:
+
+```bash
+devtunnel host -p 5000 --allow-anonymous
+```
+
+Con esa URL se completa `DEV_TUNNEL` y, en el DevCenter, la Redirect URI (`https://<url-publica>/api/mercadolibre/callback`) y la URL de notificaciones (`https://<url-publica>/api/mercadolibre/notificaciones`). Después de cambiar el `.env`, `docker compose up -d` recrea la API con los valores nuevos.
+
+Para conectarse a la base desde SSMS: servidor `localhost,1433`, usuario `sa`, la clave de `SA_PASSWORD` y *Trust server certificate*.

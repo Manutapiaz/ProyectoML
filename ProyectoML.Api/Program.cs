@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProyectoML.Api.Handlers;
 using ProyectoML.Application.Auth;
@@ -20,7 +21,21 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ProyectoMlCONN")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ProyectoMlCONN"),
+        sql => sql.EnableRetryOnFailure(
+            maxRetryCount: 6,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null)
+    ));
+
+
+builder.Services.AddDbContext<ClavesDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ProyectoMlCONN"),
+            sql => sql.EnableRetryOnFailure(
+            maxRetryCount: 6,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null)
+    ));
 
 
 builder.Services.AddControllers();
@@ -95,8 +110,13 @@ var rutaClaves = builder.Configuration["DataProtection:RutaClaves"];
 var dataProtection = builder.Services.AddDataProtection()
     .SetApplicationName("ProyectoML");
 if (!string.IsNullOrWhiteSpace(rutaClaves))
+{
     dataProtection.PersistKeysToFileSystem(new DirectoryInfo(rutaClaves));
-
+}
+else
+{
+    dataProtection.PersistKeysToDbContext<ClavesDbContext>();
+}
 
 
 builder.Services.AddSingleton<IAuthStateProtector, AuthStateProtector>();
@@ -110,7 +130,11 @@ if (aplicarMigraciones)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+    var dbClaves = scope.ServiceProvider.GetRequiredService<ClavesDbContext>();
+    dbClaves.Database.Migrate();
 }
+
+
 
 app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())

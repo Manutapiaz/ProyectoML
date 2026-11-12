@@ -1,7 +1,9 @@
 name: Deploy
 on:
   push:
-    branches: [master, feature/github-actions]
+    branches: [master]
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -15,8 +17,10 @@ jobs:
           dotnet-version: 10.0.x
 
       - run: dotnet test
+  
   build-push:
     needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
